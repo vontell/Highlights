@@ -27,6 +27,7 @@ db = client.beta
 
 @app.route('/api/fetch_oauth', methods=["GET"])
 def get_oauth_token():
+    logging.info("Recieved a request to process OAUTH")
     # Sample URL to build
     # https://accounts.google.com/o/oauth2/auth?
     # client_id=1084945748469-eg34imk572gdhu83gj5p0an9fut6urp5.apps.googleusercontent.com&
@@ -51,6 +52,7 @@ def get_oauth_token():
         return_json = {
             'url': url_to_return
         }
+        logging.info(return_json)
         response = Response(
             response=return_json, status=200, mimetype='application/json')
     except:
