@@ -101,7 +101,7 @@ def get_real_token():
         raise
 
 
-@app.route('/api/get_subscriptions' methods=['POST'])
+@app.route('/api/get_subscriptions', methods=['POST'])
 def get_subscriptions():
     user_info = request.get_json(force=True)
     # Go to the DB and get the user.
