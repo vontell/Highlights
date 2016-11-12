@@ -3,7 +3,7 @@ import json
 import tempfile
 import sys
 import numpy as np
-import urllib2
+import urllib
 from urllib.request import urlopen
 from datetime import datetime
 
@@ -87,7 +87,7 @@ def get_real_token():
         }
         # Make the request to Google and hopefully get back the legit
         # credentials.
-        req = urllib2.Request(
+        req = urllib.request(
             'https://accounts.google.com/o/oauth2/token',
             url_json, {'Content-Type': 'application/json'})
         f = urllib2.urlopen(req)
@@ -120,12 +120,12 @@ def get_subscriptions():
     # https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&access_token=ACCESS_TOKEN
     fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&access_token=' + \
         str(user[access_token])
-    req = urllib2.Request(fetch_url)
+    req = urllib.request(fetch_url)
 
     # Sample Header
     # Authorization: Bearer ACCESS_TOKEN
     req.add_header('Authorization: Bearer', user[access_token])
-    resp = urllib2.urlopen(req)
+    resp = urllib.urlopen(req)
 
     # This is a user's subscriptions
     content = resp.read()
@@ -155,7 +155,7 @@ def get_videos():
     # Sample Header
     # Authorization: Bearer ACCESS_TOKEN
     req.add_header('Authorization: Bearer', user[access_token])
-    resp = urllib2.urlopen(req)
+    resp = urllib.urlopen(req)
 
     # This is a user's recommended videos as seen on the home page.
     content = resp.read()
@@ -180,7 +180,7 @@ def get_most_recent_videos(user, urls):
         # Sample Header
         # Authorization: Bearer ACCESS_TOKEN
         req.add_header('Authorization: Bearer', user[access_token])
-        resp = urllib2.urlopen(req)
+        resp = urllib.urlopen(req)
 
         # This is a user's recommended videos as seen on the home page.
         content = resp.read()
