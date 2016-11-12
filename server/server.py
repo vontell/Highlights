@@ -78,8 +78,8 @@ def get_real_token():
         # grant_type=authorization_code
         url_json = {
             'code': returned_code,
-            'client_id': 'some val from the Google Console',
-            'client_secret': 'some other val from the Google Console',
+            'client_id': 'http://1067255681104-s1kfgl18d0obj1p75ab4pk55sgjgnh1a.apps.googleusercontent.com',
+            'client_secret': 'COZAHeThpabL7r1Jw4b4qOqs',
             'redirect_uri': 'http%3A%2F%2Flocalhost%2Fapi%2Frequst_fallback',
             'grant_type': 'authorization_code'
         }
