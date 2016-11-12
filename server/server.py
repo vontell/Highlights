@@ -1,3 +1,4 @@
+import highlighter as ml
 import requests
 import logging
 import httplib2
@@ -17,6 +18,8 @@ from flask import Flask, jsonify, redirect, url_for, request, Response
 from flask_login import *
 from pymongo import MongoClient
 from bson import json_util
+
+global_ml_queue = []
 
 # Initialize a storage object
 storage = Storage('a_credentials_file')
@@ -108,7 +111,7 @@ def get_subscriptions():
     # results = json.loads(result)
     ids = get_ids(result)
     logging.info(ids)
-    return 'ok'
+    return do_the_ml(ids)
 
 
 def get_ids(str):
@@ -177,9 +180,50 @@ def get_most_recent_videos(user, urls):
     return return_json
 
 
-def do_the_ml(urls):
-    # insert Ali's script here
-    pass
+def do_the_ml(ids):
+   # insert Ali's script here
+    for id in ids:
+        ml(id)
+        data = []
+        with open('ml/out.json') as f:
+            for line in f:
+                data.append(json.loads(line))
+
+        # Format for the data that Aaron wants.
+        # {
+        # "title": "Title as a string",
+        # "videoId": "ID of the youtube video as a string"
+        # "startSeek": start time as an integer in milliseconds,
+        # "endSeek": end time as an integer in milliseconds,
+        # "views": number of views as an integer,
+        # "seen": boolean if this is seen, if this even is a thing
+        # }
+
+        formatted_json = []
+        while obj in data != None:
+            properly_formatted_json = {
+                "title": data[obj]['title'],
+                "videoId": data[obj]['videoId'],
+                "startSeek": data[obj]['start'],
+                "endSeek": data[obj]['end']
+            }
+            formatted_json.append(properly_formatted_json)
+        for_insert {id: formatted_json}
+        db.mvp.insert(for_insert)
+        return format_ml(formatted_json)
+
+
+@app.route('/api/get_ml_data', methods=['GET'])
+def format_ml(data):
+    global global_ml_queue
+    global_ml_queue.append(data)
+    to_return = global_ml_queue
+    global_ml_queue = None
+    resp = Response(
+        response=to_return, status=200,  mimetype="application/json")
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
 
 if __name__ == "__main__":
     # Run this with python3 server.py and then tail -f mvp.log
