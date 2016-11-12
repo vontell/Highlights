@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">YHack</string>
+    <string name="API_KEY">AIzaSyC3QqbddOIlqx7pDdD66fziPnQezWqICAM</string> <!-- Don't look at this O.O -->
 </resources>
