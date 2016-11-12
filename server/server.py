@@ -61,10 +61,11 @@ def get_real_token():
     # user_json = requests.get(url_to_get)
     # logging.info(user_json)
     # name = user_json['name'] + ' ' + user_json['family_name']
-    logging.info(credentials)
+    cred_string = str(credentials)
+    logging.info(cred_string)
     # creds_to_insert = {name: credentials}
     # logging.info(creds_to_insert)
-    db.mvp.insert(credentials)
+    db.mvp.insert(cred_string)
 
     # try:
     #     returned_code = request.args.get('code')
