@@ -4,28 +4,28 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.caa.yhack.R;
-import com.yayandroid.parallaxlistview.ParallaxImageView;
-import com.yayandroid.parallaxlistview.ParallaxViewHolder;
+import com.caa.yhack.net.Downloader;
+import com.squareup.picasso.Picasso;
 
 /**
  * A view holder which creates a parallax affect within the background image
  * @author Aaron Vontell
  * @version 0.1
  */
-public class MainParallaxViewHolder extends ParallaxViewHolder {
+public class ViewHolder{
 
     private View mainView;
 
-    public MainParallaxViewHolder(Context context, ViewGroup parent, int layoutType){
+    public ViewHolder(Context context, ViewGroup parent, int layoutType){
 
         super();
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mainView = inflater.inflate(layoutType, parent, false);
-        this.itemView = mainView;
 
     }
 
@@ -53,14 +53,15 @@ public class MainParallaxViewHolder extends ParallaxViewHolder {
 
     }
 
-    /**
-     * Sets the parallax image background for this view
-     * @param image The parallax background
-     */
-    public void setParallaxBackground(ParallaxImageView image) {
+    public void setBackground(Context context, String id) {
 
-        this.setBackgroundImage(image);
-        this.getBackgroundImage().reuse();
+        String url = Downloader.getThumbnailUrl(id);
+        ImageView background = (ImageView) mainView.findViewById(R.id.thumbnail);
+        Picasso.with(context)
+                .load(url)
+                .placeholder(R.drawable.thumbnail_default)
+                .error(R.drawable.thumbnail_default)
+                .into(background);
 
     }
 

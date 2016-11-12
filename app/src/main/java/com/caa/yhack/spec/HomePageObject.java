@@ -1,5 +1,7 @@
 package com.caa.yhack.spec;
 
+import android.widget.ImageView;
+
 import com.yayandroid.parallaxlistview.ParallaxImageView;
 
 /**
@@ -10,8 +12,8 @@ import com.yayandroid.parallaxlistview.ParallaxImageView;
  */
 public interface HomePageObject {
 
-    ParallaxImageView getBackgroundImage();
-    void setBackground(ParallaxImageView image);
+    ImageView getBackgroundImage();
+    void setBackground(ImageView image);
     String getTitle();
     String getTidbit();
     String getVideoId();

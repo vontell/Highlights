@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import com.caa.yhack.R;
+import com.caa.yhack.net.Downloader;
 import com.caa.yhack.spec.HomePageObject;
 
 /**
@@ -27,15 +28,15 @@ public class VideoArrayAdapter extends ArrayAdapter<HomePageObject> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        MainParallaxViewHolder viewHolder = new MainParallaxViewHolder(context, parent, R.layout.home_wide);
+        ViewHolder viewHolder = new ViewHolder(context, parent, R.layout.home_wide);
 
         HomePageObject homeObject = listItems[position];
-        viewHolder.setParallaxBackground(homeObject.getBackgroundImage());
+
+        viewHolder.setBackground(context, homeObject.getVideoId());
         viewHolder.setTitle(homeObject.getTitle());
         viewHolder.setTidbit(homeObject.getTidbit());
 
         View view = viewHolder.getView();
-        view.setTag(viewHolder);
 
         return view;
 

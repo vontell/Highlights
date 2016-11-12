@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ListView;
 
 import com.caa.yhack.net.Downloader;
 import com.caa.yhack.spec.HomePageObject;
@@ -16,7 +17,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ParallaxListView wideList;
+    private ListView wideList;
     private Context context;
 
     @Override
@@ -26,8 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         this.context = this;
 
-        wideList = (ParallaxListView) findViewById(R.id.parallaxListView);
-        wideList.setDividerHeight(5);
+        wideList = (ListView) findViewById(R.id.parallaxListView);
 
         loadHomeObjects();
 
@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(HomePageObject[] result) {
-            Downloader.attachThumbnails(context, result);
             VideoArrayAdapter adapter = new VideoArrayAdapter(context, result);
             wideList.setAdapter(adapter);
         }

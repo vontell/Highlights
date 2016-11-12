@@ -1,7 +1,8 @@
 package com.caa.yhack.youtube;
 
+import android.widget.ImageView;
+
 import com.caa.yhack.spec.HomePageObject;
-import com.yayandroid.parallaxlistview.ParallaxImageView;
 
 /**
  * A representation of a video on YouTube
@@ -16,7 +17,7 @@ public class Video implements HomePageObject {
     private int endSeek;
     private int views;
     private boolean seen;
-    private ParallaxImageView background;
+    private ImageView background;
 
     /**
      * Creates a video representation that we can retrieve from the YouTube API
@@ -37,7 +38,7 @@ public class Video implements HomePageObject {
     }
 
     @Override
-    public ParallaxImageView getBackgroundImage() {
+    public ImageView getBackgroundImage() {
         return background;
     }
 
@@ -110,7 +111,7 @@ public class Video implements HomePageObject {
         this.seen = seen;
     }
 
-    public void setBackground(ParallaxImageView image) {
+    public void setBackground(ImageView image) {
         this.background = image;
     }
 

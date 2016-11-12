@@ -1,10 +1,12 @@
 package com.caa.yhack.net;
 
 import android.content.Context;
-import android.provider.Settings;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 
 import com.caa.yhack.R;
 import com.caa.yhack.spec.HomePageObject;
+import com.caa.yhack.views.VideoArrayAdapter;
 import com.squareup.picasso.Picasso;
 import com.yayandroid.parallaxlistview.ParallaxImageView;
 
@@ -19,27 +21,24 @@ public class Downloader {
     private static final String THUMBNAIL_URL = "https://img.youtube.com/vi/%ID%/0.jpg";
 
     /**
-     * Attaches thumbnails to each object that belongs on the homepage
-     * @param objects
+     * Attaches thumbnails to the home page object that belongs on the homepage
+     * @param context
+     * @param object
+     * @param imageView
      */
-    public static void attachThumbnails(Context context, HomePageObject[] objects) {
+    public static void attachThumbnail(Context context, HomePageObject object, ImageView imageView) {
 
-        for(HomePageObject object : objects) {
+        String url = THUMBNAIL_URL.replace("%ID%", object.getVideoId());
+        Picasso.with(context)
+                .load(url)
+                .placeholder(R.drawable.thumbnail_default)
+                .error(R.drawable.thumbnail_default)
+                .into(imageView);
 
-            String url = THUMBNAIL_URL.replace("%ID%", object.getVideoId());
-            ParallaxImageView imageView = new ParallaxImageView(context);
-            Picasso.with(context)
-                    .load(url)
-                    .resize(300, 300)
-                    .centerCrop()
-                    .placeholder(R.drawable.thumbnail_default)
-                    .error(R.drawable.thumbnail_default)
-                    .into(imageView);
+    }
 
-            object.setBackground(imageView);
-
-        }
-
+    public static String getThumbnailUrl(String videoId) {
+        return THUMBNAIL_URL.replace("%ID%", videoId);
     }
 
 }
