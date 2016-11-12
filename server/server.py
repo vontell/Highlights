@@ -75,7 +75,7 @@ def get_real_token():
         # storage.put(flow.step2_exchange(code))
         # credentials.refresh(http)
         user_video_data = get_subscriptions()
-        logg.info(user_video_data)
+        logging.info(user_video_data)
         return user_video_data
 
 
@@ -108,6 +108,7 @@ def get_subscriptions():
     # results = json.loads(result)
     ids = get_ids(result)
     logging.info(ids)
+    return ids
 
 
 def get_ids(str):
