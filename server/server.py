@@ -95,35 +95,31 @@ def get_subscriptions():
         credentials = pickle.load(f)[0]
     http1 = credentials.authorize(http)
     headers, content = http1.request(fetch_url, method="GET")
-    result = str(content)[str(content).index("{") : len(str(content)) - str(content)[::-1].index("}")]
+    result = str(content)[str(content).index(
+        "{"): len(str(content)) - str(content)[::-1].index("}")]
     result = result.replace('\\\"', "")
-    logging.info(result)
-    #logging.info(str(content))
+    # logging.info(result)
+    # logging.info(str(content))
+
     # This is a user's subscriptions
     with open('blob.pickle', 'wb') as f:
         pickle.dump([content], f)
-    #logging.info(json.d(content))
+    # logging.info(json.d(content))
     results = json.loads(result)
-
     ids = get_ids(results)
-    #for item in results["items"]:
-    #    ids.append(item["id"])
+    logging.info(ids)
 
-    
-    #channels = np.array([object["channelId"] for object in [object["resourceId"]
-    #                                                        for object in [object["snippet"] for object in results["items"]]]]).flatten()
-    #channel_urls = get_video_urls(channels)
-    # Then pass this result to the server.
-    
+
 def get_ids(str):
-      ids = []
+    ids = []
         splitted = str.split('"channelId":"')
-          for i in range(len(splitted)):
-                  if i > 0:
-                      print splitted[i].index('"')
-                                  id = splitted[i][:splitted[i].index('"')]
-                                        ids.append(id)
-                                          return ids
+            for i in range(len(splitted)):
+                if i > 0:
+                    print splitted[i].index('"')
+                        id = splitted[i][:splitted[i].index('"')]
+                            ids.append(id)
+                                return ids
+
 
 @app.route('/api/get_videos', methods=['POST'])
 def get_videos():
