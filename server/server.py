@@ -64,7 +64,7 @@ def get_oauth_token():
     # return resp
 
 
-@app.route('/api/oauth2callback', methods=['POST'])
+@app.route('/api/oauth2callback', methods=['GET','POST'])
 def get_real_token():
     try:
         returned_code = request.args.get('code')
@@ -195,4 +195,4 @@ if __name__ == "__main__":
     # Run this with python3 server.py and then tail -f mvp.log
     logging.info("Began running at {0}".format(datetime.now()))
     logging.info(" ")
-    app.run(host='0.0.0.0', port=3000)
+    app.run(host='0.0.0.0', port=80)
