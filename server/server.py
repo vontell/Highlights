@@ -80,13 +80,7 @@ def get_subscriptions():
     http = credentials.authorize(http)
     content = http.request(fetch_url, "GET")
 
-    # # Sample Header
-    # # Authorization: Bearer ACCESS_TOKEN
-    # req.add_header('Authorization: Bearer', user[access_token])
-    # resp = urllib.urlopen(req)
-
     # This is a user's subscriptions
-    # content = resp.read()
     ids = [object["id"] for object in content["items"]]
     channels = np.array([object["channelId"] for object in [object["resourceId"]
                                                             for object in [object["snippet"] for object in content["items"]]]]).flatten()
@@ -126,23 +120,24 @@ def get_video_urls(user, ids):
     urls = []
     for id in ids:
         query_url = base_url + '?part=snippet&' + 'channelID=' + \
-            str(id) + '&type=video' + '&order=date&maxResults=1'
+            str(id) + '&type=video' + '&order=date&maxResults=20'
         urls.append(query_url)
     get_most_recent_videos(user, urls)
 
 
 def get_most_recent_videos(user, urls):
     return_json = []
+    http = credentials.authorize(http)
     for url in urls:
-        req = urllib2.Request(fetch_url)
-        # Sample Header
-        # Authorization: Bearer ACCESS_TOKEN
-        req.add_header('Authorization: Bearer', user[access_token])
-        resp = urllib.urlopen(req)
+        req = http.request(url, "GET")
+        # req = urllib2.Request(fetch_url)
+        # # Sample Header
+        # # Authorization: Bearer ACCESS_TOKEN
+        # req.add_header('Authorization: Bearer', user[access_token])
+        # resp = urllib.urlopen(req)
 
         # This is a user's recommended videos as seen on the home page.
-        content = resp.read()
-        return_json.append(cotent)
+        return_json.append(content)
     return return_json
 
 
