@@ -70,7 +70,6 @@ def get_real_token():
         # POST /o/oauth2/token HTTP/1.1
         # Host: accounts.google.com
         # Content-Type: application/x-www-form-urlencoded
-
         # code=4/ux5gNj-_mIu4DOD_gNZdjX9EtOFf&
         # client_id=1084945748469-eg34imk572gdhu83gj5p0an9fut6urp5.apps.googleusercontent.com&
         # client_secret=hDBmMRhz7eJRsM9Z2q1oFBSe&
@@ -83,9 +82,17 @@ def get_real_token():
             'redirect_uri': 'http%3A%2F%2Flocalhost%2Fapi%2Frequst_fallback'
             'grant_type': 'authorization_code'
         }
-        # request_url =
-        # Post to https://accounts.google.com/o/oauth2/token with the above
-        # JSON and then store the response
+        req = urllib2.Request(
+            'https://accounts.google.com/o/oauth2/token',
+            url_json, {'Content-Type': 'application/json'})
+        f = urllib2.urlopen(req)
+        response = f.read()
+        db.mvp.insert(response)
+        f.close()
+    except:
+        logging.info("Error: ", sys.exc_info()[0])
+        status_info = sys.exc_info()[0]
+        raise
 
 
 if __name__ == "__main__":
