@@ -73,10 +73,12 @@ def get_real_token():
             pickle.dump([credentials], f)
         # storage.put(flow.step2_exchange(code))
         # credentials.refresh(http)
-        return
+        user_video_data = get_subscriptions()
+        logg.info(user_video_data)
+        return user_video_data
 
 
-@app.route('/api/get_subscriptions', methods=['POST'])
+@app.route('/api/get_subscriptions', methods=['GET'])
 def get_subscriptions():
 
     # -------------------------------------
