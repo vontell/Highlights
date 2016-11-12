@@ -3,6 +3,7 @@ import logging
 import json
 import tempfile
 import sys
+from oauth2client.client import OAuth2WebServerFlow
 import numpy as np
 import urllib
 from urllib.request import urlopen
@@ -38,68 +39,59 @@ def get_oauth_token():
     # scope=https://www.googleapis.com/auth/youtube&
     # response_type=code&
     # access_type=offline
-    try:
-        json_builder = {
-            'client_id': "1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com",
-            'redirect_uri': 'http%3A%2F%2Fli507-39.members.linode.com%2Fapi%2Foauth2callback',
-            'scope': 'https://www.googleapis.com/auth/youtube',
-            'response_type': 'code',
-            'access_type': 'offline'
-        }
-        url_to_return = 'https://accounts.google.com/o/oauth2/auth?client_id=' + \
-            json_builder['client_id'] + '&redirect_uri=' + str(json_builder['redirect_uri']) + '&scope=' + str(json_builder[
-                'scope']) + '&response_type=' + str(json_builder['response_type']) + '&access_type=' + str(json_builder['access_type'])
-        return_json = {
-            'url': url_to_return
-        }
-        logging.info(return_json)
-        return redirect(url_to_return)
-        # resp = Response(
-        #     response=return_json, status=200, mimetype='application/json')
-    except:
-        logging.info("Error: ", sys.exc_info()[0])
-        status_info = sys.exc_info()[0]
-        resp = Response(
-            response=status_info, status=200, mimetype='application/json')
-        raise
-    # resp.headers['Access-Control-Allow-Origin'] = '*'
-    # return resp
+    flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
+                               client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
+                               scope='https://www.googleapis.com/auth/youtube',
+                               redirect_uri='http%3A%2F%2Fli507-39.members.linode.com%2Fapi%2Frequst_fallback')
+    auth_uri = flow.step1_get_authorize_url()
+    return redirect(auth_uri)
 
 
 @app.route('/api/oauth2callback', methods=['GET', 'POST'])
 def get_real_token():
-    try:
-        returned_code = request.args.get('code')
-        # Sample to build
-        # POST /o/oauth2/token HTTP/1.1
-        # Host: accounts.google.com
-        # Content-Type: application/x-www-form-urlencoded
-        # code=4/ux5gNj-_mIu4DOD_gNZdjX9EtOFf&
-        # client_id=1084945748469-eg34imk572gdhu83gj5p0an9fut6urp5.apps.googleusercontent.com&
-        # client_secret=hDBmMRhz7eJRsM9Z2q1oFBSe&
-        # redirect_uri=http://localhost/oauth2callback&
-        # grant_type=authorization_code
-        url_json = {
-            'code': returned_code,
-            'client_id': '1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
-            'client_secret': 'TJit9VO6nzvJ03CRgoo3t_4e',
-            'redirect_uri': 'http%3A%2F%2Fli507-39.members.linode.com%2Fapi%2Frequst_fallback',
-            'grant_type': 'authorization_code'
-        }
-        # Make the request to Google and hopefully get back the legit
-        # credentials.
-        response = requests.post('https://accounts.google.com/o/oauth2/token',
-                                 data=url_json, headers={'Content-Type': 'application/json'})
-        logging.info("Here is the Google response")
-        logging.info(response)
-        db.mvp.insert(response)
-        logging.info(response)
-    # If we got here it means that the user did not grant us access to their
-    # YouTube account.
-    except:
-        logging.info("Error: ", sys.exc_info()[0])
-        status_info = sys.exc_info()[0]
-        raise
+    code = request.args.get('code')
+    credentials = flow.step2_exchange(code)
+    logging.info("Here is the code: ")
+    logging.info(code)
+    db.mvp.insert(code)
+
+    # try:
+    #     returned_code = request.args.get('code')
+    #     # Sample to build
+    #     # POST /o/oauth2/token HTTP/1.1
+    #     # Host: accounts.google.com
+    #     # Content-Type: application/x-www-form-urlencoded
+    #     # code=4/ux5gNj-_mIu4DOD_gNZdjX9EtOFf&
+    #     # client_id=1084945748469-eg34imk572gdhu83gj5p0an9fut6urp5.apps.googleusercontent.com&
+    #     # client_secret=hDBmMRhz7eJRsM9Z2q1oFBSe&
+    #     # redirect_uri=http://localhost/oauth2callback&
+    #     # grant_type=authorization_code
+    #     url_json = {
+    #         'code': returned_code,
+    #         'client_id': '1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
+    #         'client_secret': 'TJit9VO6nzvJ03CRgoo3t_4e',
+    #         'redirect_uri': 'http%3A%2F%2Fli507-39.members.linode.com%2Fapi%2Frequst_fallback',
+    #         'grant_type': 'authorization_code'
+    #     }
+    #     flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
+    #                                client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
+    #                                scope='https://www.googleapis.com/auth/youtube',
+    #                                redirect_uri='http%3A%2F%2Fli507-39.members.linode.com%2Fapi%2Frequst_fallback')
+
+    #     # Make the request to Google and hopefully get back the legit
+    #     # credentials.
+    #     response = requests.post('https://accounts.google.com/o/oauth2/token',
+    #                              data=url_json, headers={'Content-Type': 'application/json'})
+    #     logging.info("Here is the Google response")
+    #     logging.info(response)
+    #     db.mvp.insert(response)
+    #     logging.info(response)
+    # # If we got here it means that the user did not grant us access to their
+    # # YouTube account.
+    # except:
+    #     logging.info("Error: ", sys.exc_info()[0])
+    #     status_info = sys.exc_info()[0]
+    #     raise
 
 
 @app.route('/api/get_subscriptions', methods=['POST'])
