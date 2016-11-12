@@ -5,7 +5,7 @@ import json
 import tempfile
 import sys
 import oauth2client
-from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.client import OAuth2WebServerFlow, Storage
 import numpy as np
 import urllib
 from urllib.request import urlopen
@@ -16,8 +16,10 @@ from flask_login import *
 from pymongo import MongoClient
 from bson import json_util
 
+# Initialize a storage object
+storage = Storage('a_credentials_file')
+
 # Single user auth credentials
-credentials = None
 http = httplib2.Http()
 
 # Flask configuration
@@ -60,10 +62,9 @@ def get_real_token():
                                scope='https://www.googleapis.com/auth/youtube',
                                redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
     code = request.args.get('code')
-    global credentials
     credentials = flow.step2_exchange(code)
-    oauth2client.credentials.refresh(http)
-    credentials = flow.step2_exchange(code)
+    storage.put(credentials)
+    credentials.refresh(http)
     return
 
 
@@ -79,6 +80,7 @@ def get_subscriptions():
     # https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&access_token=ACCESS_TOKEN
     fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&access_token=' + \
         str(user[access_token])
+    credentials = storage.get()
     http = credentials.authorize(http)
     content = http.request(fetch_url, "GET")
 
@@ -95,9 +97,9 @@ def get_videos():
     # Go to the DB and get the user.
     user = db.mvp.find_one(user_info)
 
-    # -------------------------------------
+    # --------------------------------------
     # Request Subscription data from Google.
-    # -------------------------------------
+    # --------------------------------------
     print(user)
 
     # Sample URL
@@ -129,6 +131,7 @@ def get_video_urls(user, ids):
 
 def get_most_recent_videos(user, urls):
     return_json = []
+    credentials = storage.get()
     http = credentials.authorize(http)
     for url in urls:
         req = http.request(url, "GET")
