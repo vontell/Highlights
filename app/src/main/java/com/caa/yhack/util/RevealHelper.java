@@ -2,7 +2,11 @@ package com.caa.yhack.util;
 
 import android.animation.Animator;
 import android.app.Activity;
+import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.ViewGroup;
+
+import com.caa.yhack.R;
 
 /**
  * Static methods for doing reveal animations on views
@@ -15,56 +19,15 @@ public class RevealHelper {
      * Starts the animation for reveal the video screen
      * @param activity The calling activity
      * @return the animator for the video screen, for later listener use
-     *
-    public static Animator startVideoReveal(Activity activity) {
+     */
+    public static Animator startVideoReveal(Activity activity, float x, float y) {
 
-        // Get animation info for FAB --------------------------------------------------------------
+        System.out.println("VIDEO REVEAL STARTED AT POST " + x + "," + y);
 
-        // previously invisible view
-        final FloatingActionButton fab = (FloatingActionButton) activity.findViewById(R.id.fab);
-
-        // get the center for the fab circle
-        int fx = fab.getMeasuredWidth() / 2;
-        int fy = fab.getMeasuredHeight() / 2;
-
-        // get the final radius for the clipping circle
-        int fStartRadius = Math.max(fab.getWidth(), fab.getHeight()) / 2;
-        int fFinalRadius = 0;
-
-        // create the animator for this view
-        Animator fabAnim =
-                ViewAnimationUtils.createCircularReveal(fab, fx, fy, fStartRadius, fFinalRadius);
-
-        fabAnim.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                fab.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
-        });
-
-        // Get animation info for the recording view -----------------------------------------------
+        // Get animation info for the video view -----------------------------------------------
 
         // previously invisible view
-        View screen = activity.findViewById(R.id.recording_screen);
-
-        ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) fab.getLayoutParams();
-        int cx = screen.getWidth() - fx - marginParams.leftMargin;
-        int cy = screen.getHeight() - fy - marginParams.bottomMargin;
+        View screen = activity.findViewById(R.id.video_screen);
 
         // get the final radius for the clipping circle
         int cFinalRadius = (int) Math.hypot(screen.getWidth(), screen.getHeight());
@@ -72,13 +35,11 @@ public class RevealHelper {
 
         // create the animator for this view
         Animator circleAnim =
-                ViewAnimationUtils.createCircularReveal(screen, cx, cy, cStartRadius, cFinalRadius);
+                ViewAnimationUtils.createCircularReveal(screen, (int) x, (int) y, cStartRadius, cFinalRadius);
 
         // Start the animations! -------------------------------------------------------------------
         // make the views visible and start the animation
-        fab.setVisibility(View.VISIBLE);
         screen.setVisibility(View.VISIBLE);
-        fabAnim.start();
         circleAnim.start();
 
         return circleAnim;
@@ -89,56 +50,13 @@ public class RevealHelper {
      * Starts the animation for hiding the video screen
      * @param activity The calling activity
      * @return the animator for the video screen, for later listener use
-     *
-    public static Animator startVideoHide(Activity activity) {
-
-        // Get animation info for FAB --------------------------------------------------------------
-
-        // previously invisible view
-        final FloatingActionButton fab = (FloatingActionButton) activity.findViewById(R.id.fab);
-
-        // get the center for the fab circle
-        int fx = fab.getMeasuredWidth() / 2;
-        int fy = fab.getMeasuredHeight() / 2;
-
-        // get the final radius for the clipping circle
-        int fFinalRadius = Math.max(fab.getWidth(), fab.getHeight()) / 2;
-        int fStartRadius = 0;
-
-        // create the animator for this view
-        final Animator fabAnim =
-                ViewAnimationUtils.createCircularReveal(fab, fx, fy, fStartRadius, fFinalRadius);
-
-        fabAnim.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                fab.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
-        });
+     */
+    public static Animator startVideoHide(Activity activity, float x, float y) {
 
         // Get animation info for the recording view -----------------------------------------------
 
         // previously invisible view
-        final View screen = activity.findViewById(R.id.recording_screen);
-
-        ViewGroup.MarginLayoutParams marginParams = (ViewGroup.MarginLayoutParams) fab.getLayoutParams();
-        int cx = screen.getWidth() - fx - marginParams.rightMargin;
-        int cy = screen.getHeight() - fy - marginParams.bottomMargin;
+        final View screen = activity.findViewById(R.id.video_screen);
 
         // get the final radius for the clipping circle
         int cStartRadius = (int) Math.hypot(screen.getWidth(), screen.getHeight());
@@ -146,7 +64,7 @@ public class RevealHelper {
 
         // create the animator for this view
         Animator circleAnim =
-                ViewAnimationUtils.createCircularReveal(screen, cx, cy, cStartRadius, cFinalRadius);
+                ViewAnimationUtils.createCircularReveal(screen, (int) x, (int) y, cStartRadius, cFinalRadius);
 
         circleAnim.addListener(new Animator.AnimatorListener() {
             @Override
@@ -175,13 +93,10 @@ public class RevealHelper {
         // Start the animations! -------------------------------------------------------------------
         // make the views visible and start the animation
         screen.setVisibility(View.VISIBLE);
-        fab.setVisibility(View.VISIBLE);
         circleAnim.start();
-        fabAnim.start();
 
         return circleAnim;
 
     }
-    */
 
 }
