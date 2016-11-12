@@ -3,6 +3,7 @@ import logging
 import httplib2
 import json
 import tempfile
+import pickle
 import sys
 import oauth2client
 from oauth2client.client import OAuth2WebServerFlow, Storage
@@ -57,15 +58,22 @@ def get_oauth_token():
 
 @app.route('/api/oauth2callback', methods=['GET', 'POST'])
 def get_real_token():
-    flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
-                               client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
-                               scope='https://www.googleapis.com/auth/youtube',
-                               redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
-    code = request.args.get('code')
-    #credentials = flow.step2_exchange(code)
-    storage.put(flow.step2_exchange(code))
-    # credentials.refresh(http)
-    return
+    credentials = None
+    try:
+        with open('credentials.pickle', 'rb') as f:
+            credentials = pickle.load(f)[0]
+    except FileNotFoundError:
+        flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
+                                   client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
+                                   scope='https://www.googleapis.com/auth/youtube',
+                                   redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
+        code = request.args.get('code')
+        credentials = flow.step2_exchange(code)
+        with open('credentials.pickle', 'wb') as f:
+            pickle.dump([credentials], f)
+        # storage.put(flow.step2_exchange(code))
+        # credentials.refresh(http)
+        return
 
 
 @app.route('/api/get_subscriptions', methods=['POST'])
