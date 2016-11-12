@@ -105,8 +105,8 @@ def get_subscriptions():
     with open('blob.pickle', 'wb') as f:
         pickle.dump([content], f)
     # logging.info(json.d(content))
-    results = json.loads(result)
-    ids = get_ids(results)
+    # results = json.loads(result)
+    ids = get_ids(result)
     logging.info(ids)
 
 
@@ -115,7 +115,7 @@ def get_ids(str):
     splitted = str.split('"channelId":"')
     for i in range(len(splitted)):
         if i > 0:
-            print splitted[i].index('"')
+            logging.info(splitted[i].index('"'))
             id = splitted[i][:splitted[i].index('"')]
             ids.append(id)
     return ids
