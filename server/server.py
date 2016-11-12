@@ -49,6 +49,10 @@ def get_oauth_token():
 
 @app.route('/api/oauth2callback', methods=['GET', 'POST'])
 def get_real_token():
+    flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
+                               client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
+                               scope='https://www.googleapis.com/auth/youtube',
+                               redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
     code = request.args.get('code')
     credentials = flow.step2_exchange(code)
     logging.info("Here is the code: ")
