@@ -3,9 +3,10 @@ import logging
 import httplib2
 import json
 import tempfile
+import pickle
 import sys
 import oauth2client
-from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.client import OAuth2WebServerFlow, Storage
 import numpy as np
 import urllib
 from urllib.request import urlopen
@@ -16,8 +17,10 @@ from flask_login import *
 from pymongo import MongoClient
 from bson import json_util
 
+# Initialize a storage object
+storage = Storage('a_credentials_file')
+
 # Single user auth credentials
-credentials = None
 http = httplib2.Http()
 
 # Flask configuration
@@ -55,19 +58,27 @@ def get_oauth_token():
 
 @app.route('/api/oauth2callback', methods=['GET', 'POST'])
 def get_real_token():
-    flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
-                               client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
-                               scope='https://www.googleapis.com/auth/youtube',
-                               redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
-    code = request.args.get('code')
-    global credentials
-    credentials = flow.step2_exchange(code)
-    oauth2client.credentials.refresh(http)
-    credentials = flow.step2_exchange(code)
-    return
+    credentials = None
+    try:
+        with open('credentials.pickle', 'rb') as f:
+            credentials = pickle.load(f)[0]
+    except FileNotFoundError:
+        flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
+                                   client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
+                                   scope='https://www.googleapis.com/auth/youtube',
+                                   redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
+        code = request.args.get('code')
+        credentials = flow.step2_exchange(code)
+        with open('credentials.pickle', 'wb') as f:
+            pickle.dump([credentials], f)
+        # storage.put(flow.step2_exchange(code))
+        # credentials.refresh(http)
+        user_video_data = get_subscriptions()
+        logg.info(user_video_data)
+        return user_video_data
 
 
-@app.route('/api/get_subscriptions', methods=['POST'])
+@app.route('/api/get_subscriptions', methods=['GET'])
 def get_subscriptions():
 
     # -------------------------------------
@@ -77,15 +88,24 @@ def get_subscriptions():
     # Sample URL
     # curl
     # https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&access_token=ACCESS_TOKEN
-    fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&access_token=' + \
-        str(user[access_token])
-    http = credentials.authorize(http)
-    content = http.request(fetch_url, "GET")
+    fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&part=snippet'
+    credentials = None
+    with open('credentials.pickle', 'rb') as f:
+        credentials = pickle.load(f)[0]
+    http1 = credentials.authorize(http)
+    content = http1.request(fetch_url, "GET")
 
     # This is a user's subscriptions
-    ids = [object["id"] for object in content["items"]]
+    with open('blob.pickle', 'wb') as f:
+        pickle.dump([content], f)
+    #logging.info(json.dumps(content))
+    ids = []
+    for item in content[1]["items"]:
+        ids.append(item["id"])
+
+    
     channels = np.array([object["channelId"] for object in [object["resourceId"]
-                                                            for object in [object["snippet"] for object in content["items"]]]]).flatten()
+                                                            for object in [object["snippet"] for object in content[1]["items"]]]]).flatten()
     channel_urls = get_video_urls(channels)
 
 
@@ -95,9 +115,9 @@ def get_videos():
     # Go to the DB and get the user.
     user = db.mvp.find_one(user_info)
 
-    # -------------------------------------
+    # --------------------------------------
     # Request Subscription data from Google.
-    # -------------------------------------
+    # --------------------------------------
     print(user)
 
     # Sample URL
@@ -129,6 +149,7 @@ def get_video_urls(user, ids):
 
 def get_most_recent_videos(user, urls):
     return_json = []
+    credentials = storage.get()
     http = credentials.authorize(http)
     for url in urls:
         req = http.request(url, "GET")
