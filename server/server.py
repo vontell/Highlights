@@ -41,7 +41,7 @@ def get_oauth_token():
     # access_type=offline
     flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
                                client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
-                               scope='https://www.googleapis.com/auth/youtube https://www.googleapis.com/userinfo/v2/me',
+                               scope='https://www.googleapis.com/auth/youtube https://www.googleapis.com/oauth2/v3/userinfo',
                                redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
     auth_uri = flow.step1_get_authorize_url()
     return redirect(auth_uri)
