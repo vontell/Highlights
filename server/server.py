@@ -78,6 +78,7 @@ def get_real_token():
         # credentials.refresh(http)
         user_video_data = get_subscriptions()
         logging.info(user_video_data)
+        get_subscriptions()
         return user_video_data
 
 
