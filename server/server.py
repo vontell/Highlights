@@ -3,6 +3,7 @@ import json
 import tempfile
 import sys
 import numpy as np
+import urllib2
 from urllib.request import urlopen
 from datetime import datetime
 
@@ -64,7 +65,7 @@ def get_oauth_token():
     # return resp
 
 
-@app.route('/api/oauth2callback', methods=['GET','POST'])
+@app.route('/api/oauth2callback', methods=['GET', 'POST'])
 def get_real_token():
     try:
         returned_code = request.args.get('code')
