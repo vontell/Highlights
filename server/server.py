@@ -38,7 +38,7 @@ def get_oauth_token():
     # access_type=offline
     try:
         json_builder = {
-            'client_id': "some_id_needs_to_go_here",
+            'client_id': "http://1067255681104-s1kfgl18d0obj1p75ab4pk55sgjgnh1a.apps.googleusercontent.com",
             'redirect_uri': 'http%3A%2F%2Flocalhost%2Fapi%2Foauth2callback',
             'scope': 'https://www.googleapis.com/auth/youtube',
             'response_type': 'code',
@@ -51,7 +51,7 @@ def get_oauth_token():
             'url': url_to_return
         }
         logging.info(return_json)
-        response = Response(
+        resp = Response(
             response=return_json, status=200, mimetype='application/json')
     except:
         logging.info("Error: ", sys.exc_info()[0])
