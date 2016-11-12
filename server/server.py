@@ -153,7 +153,6 @@ def get_most_recent_videos(user, urls):
 
 
 def do_the_ml(ids):
-   # insert Ali's script here
     for id in ids:
         os.system("python2 highlighter.py %s" % id)
         data = []
@@ -172,7 +171,7 @@ def do_the_ml(ids):
         # }
 
         formatted_json = []
-        while obj in data != None:
+        for obj in data:
             properly_formatted_json = {
                 "title": data[obj]['title'],
                 "videoId": data[obj]['videoId'],
