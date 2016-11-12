@@ -208,7 +208,7 @@ def do_the_ml(ids):
                 "endSeek": data[obj]['end']
             }
             formatted_json.append(properly_formatted_json)
-        for_insert {id: formatted_json}
+        for_insert = {id: formatted_json}
         db.mvp.insert(for_insert)
         return format_ml(formatted_json)
 
