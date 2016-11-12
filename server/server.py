@@ -1,6 +1,7 @@
 import logging
 import json
 import tempfile
+import numpy as np
 from urllib.request import urlopen
 from datetime import datetime
 
@@ -26,6 +27,7 @@ db = client.beta
 
 @app.route('/api/fetch_oauth', methods=["GET"])
 def get_oauth_token():
+    logging.info("Recieved a request to process OAUTH")
     # Sample URL to build
     # https://accounts.google.com/o/oauth2/auth?
     # client_id=1084945748469-eg34imk572gdhu83gj5p0an9fut6urp5.apps.googleusercontent.com&
@@ -50,6 +52,7 @@ def get_oauth_token():
         return_json = {
             'url': url_to_return
         }
+        logging.info(return_json)
         response = Response(
             response=return_json, status=200, mimetype='application/json')
     except:
@@ -77,8 +80,8 @@ def get_real_token():
         # grant_type=authorization_code
         url_json = {
             'code': returned_code,
-            'client_id': 'some val from the Google Console',
-            'client_secret': 'some other val from the Google Console',
+            'client_id': 'http://1067255681104-s1kfgl18d0obj1p75ab4pk55sgjgnh1a.apps.googleusercontent.com',
+            'client_secret': 'COZAHeThpabL7r1Jw4b4qOqs',
             'redirect_uri': 'http%3A%2F%2Flocalhost%2Fapi%2Frequst_fallback',
             'grant_type': 'authorization_code'
         }
@@ -124,10 +127,73 @@ def get_subscriptions():
     req.add_header('Authorization: Bearer', user[access_token])
     resp = urllib2.urlopen(req)
 
+    # This is a user's subscriptions
     content = resp.read()
+    ids = [object["id"] for object in content["items"]]
+    channels = np.array([object["channelId"] for object in [object["resourceId"]
+                                                            for object in [object["snippet"] for object in content["items"]]]]).flatten()
+    channel_urls = get_video_urls(channels)
 
+
+@app.route('/api/get_videos', methods=['POST'])
+def get_videos():
+    user_info = request.get_json(force=True)
+    # Go to the DB and get the user.
+    user = db.mvp.find_one(user_info)
+
+    # -------------------------------------
+    # Request Subscription data from Google.
+    # -------------------------------------
+    print(user)
+
+    # Sample URL
+    # curl
+    # https://www.googleapis.com/youtube/v3/activities
+    fetch_url = 'https://www.googleapis.com/youtube/v3/activities?part=snippet&home=true'
+    req = urllib2.Request(fetch_url)
+
+    # Sample Header
+    # Authorization: Bearer ACCESS_TOKEN
+    req.add_header('Authorization: Bearer', user[access_token])
+    resp = urllib2.urlopen(req)
+
+    # This is a user's recommended videos as seen on the home page.
+    content = resp.read()
+    ids = [object["id"] for object in content["items"]]
+    get_video_urls(user, ids)
+
+
+def get_video_urls(user, ids):
+    base_url = 'https://www.googleapis.com/youtube/v3/search'
+    urls = []
+    for id in ids:
+        query_url = base_url + '?part=snippet&' + 'channelID=' + \
+            id + '&type=video' + '&order=date&maxResults=1'
+        urls.append(query_url)
+    get_most_recent_videos(user, urls)
+
+
+def get_most_recent_videos(user, urls):
+    return_json = []
+    for url in urls:
+        req = urllib2.Request(fetch_url)
+        # Sample Header
+        # Authorization: Bearer ACCESS_TOKEN
+        req.add_header('Authorization: Bearer', user[access_token])
+        resp = urllib2.urlopen(req)
+
+        # This is a user's recommended videos as seen on the home page.
+        content = resp.read()
+        return_json.append(cotent)
+    return return_json
+
+
+def do_the_ml(urls):
+    # insert Ali's script here
+    pass
 
 if __name__ == "__main__":
+    # Run this with python3 server.py and then tail -f mvp.log
     logging.info("Began running at {0}".format(datetime.now()))
     logging.info(" ")
     app.run(host='0.0.0.0', port=3000)
