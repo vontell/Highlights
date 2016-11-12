@@ -89,7 +89,7 @@ def get_real_token():
         # Make the request to Google and hopefully get back the legit
         # credentials.
         f = requests.get('https://accounts.google.com/o/oauth2/token',
-                         url_json, {'Content-Type': 'application/json'})
+                         data=url_json, headers={'Content-Type': 'application/json'})
         response = f.read()
         db.mvp.insert(response)
         logging.info(response)
