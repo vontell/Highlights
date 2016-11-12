@@ -38,7 +38,7 @@ def get_oauth_token():
     # access_type=offline
     try:
         json_builder = {
-            'client_id': "1067255681104-s1kfgl18d0obj1p75ab4pk55sgjgnh1a.apps.googleusercontent.com",
+            'client_id': "1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com",
             'redirect_uri': 'http%3A%2F%2Fli507-39.members.linode.com%2Fapi%2Foauth2callback',
             'scope': 'https://www.googleapis.com/auth/youtube',
             'response_type': 'code',
@@ -79,8 +79,8 @@ def get_real_token():
         # grant_type=authorization_code
         url_json = {
             'code': returned_code,
-            'client_id': '1067255681104-s1kfgl18d0obj1p75ab4pk55sgjgnh1a.apps.googleusercontent.com',
-            'client_secret': 'COZAHeThpabL7r1Jw4b4qOqs',
+            'client_id': '1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
+            'client_secret': 'TJit9VO6nzvJ03CRgoo3t_4e',
             'redirect_uri': 'http%3A%2F%2Fli507-39.members.linode.com%2Fapi%2Frequst_fallback',
             'grant_type': 'authorization_code'
         }
