@@ -4,6 +4,7 @@ import httplib2
 import json
 import tempfile
 import sys
+import oauth2client
 from oauth2client.client import OAuth2WebServerFlow
 import numpy as np
 import urllib
@@ -61,8 +62,9 @@ def get_real_token():
     code = request.args.get('code')
     global credentials
     credentials = flow.step2_exchange(code)
-    logging.info("Here is the code: ")
-    return credentials
+    oauth2client.credentials.refresh(http)
+    credentials = flow.step2_exchange(code)
+    return
 
 
 @app.route('/api/get_subscriptions', methods=['POST'])
