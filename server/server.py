@@ -108,7 +108,7 @@ def get_subscriptions():
     # results = json.loads(result)
     ids = get_ids(result)
     logging.info(ids)
-    return 'ok'
+    return 'true'
 
 
 def get_ids(str):
