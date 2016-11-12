@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.caa.yhack.net.Downloader;
 import com.caa.yhack.spec.HomePageObject;
 import com.caa.yhack.util.RevealHelper;
 import com.caa.yhack.views.VideoArrayAdapter;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
     private YouTubePlayer player;
     YouTubePlayerFragment youTubePlayerFragment;
     private TextView countdownTimer;
+    private int noNewCount = 0;
 
     // FOR USE WITH PLAYBACK
     ArrayList<Integer> starts;
@@ -119,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
     public void loadHomeObjects() {
 
-        new GetVideos().execute();
+        new GetVideosTask().execute();
 
     }
 
@@ -378,5 +380,77 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
         countdownTimer.setText("" + seconds);
 
     }
+
+    private class GetVideosTask extends AsyncTask<Void, Void, Void> {
+
+        Video[] videos = null;
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            videos = Downloader.getVideos();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(videos.length != 0) {
+                noNewCount = 0;
+                currentSelection = combineArrays(currentSelection, videos);
+                VideoArrayAdapter adapter = new VideoArrayAdapter(context, currentSelection);
+                wideList.setAdapter(adapter);
+            } else {
+                noNewCount++;
+                if (noNewCount < 3) {
+                    new GrabFromQueueTask().execute();
+                }
+            }
+        }
+    }
+
+    private class GrabFromQueueTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            new GetVideosTask().execute();
+        }
+    }
+
+    public Video[] combineArrays(Video[] v1, Video[] v2) {
+
+        if(v1 == null && v2 == null) {
+            return v2;
+        }
+        else if (v1 == null) {
+            return v2;
+        } else if (v2 == null) {
+            return v1;
+        }
+
+        int newLength = v1.length + v2.length;
+        Video[] newArray = new Video[newLength];
+
+        int i = 0;
+        for(; i < v1.length; i++) {
+            newArray[i] = v1[i];
+        }
+
+        for(; i < newLength; i++) {
+            newArray[i] = v2[i - v1.length];
+        }
+
+        return newArray;
+
+    }
+
 
 }
