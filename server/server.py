@@ -88,17 +88,24 @@ def get_subscriptions():
     # Sample URL
     # curl
     # https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&access_token=ACCESS_TOKEN
-    fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true'
+    fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&part=snippet'
     credentials = None
-    with open('credentials.pickle', 'wb') as f:
-        pickle.dump([credentials], f)
-    http = credentials.authorize(http)
-    content = http.request(fetch_url, "GET")
+    with open('credentials.pickle', 'rb') as f:
+        credentials = pickle.load(f)[0]
+    http1 = credentials.authorize(http)
+    content = http1.request(fetch_url, "GET")
 
     # This is a user's subscriptions
-    ids = [object["id"] for object in content["items"]]
+    with open('blob.pickle', 'wb') as f:
+        pickle.dump([content], f)
+    #logging.info(json.dumps(content))
+    ids = []
+    for item in content[1]["items"]:
+        ids.append(item["id"])
+
+    
     channels = np.array([object["channelId"] for object in [object["resourceId"]
-                                                            for object in [object["snippet"] for object in content["items"]]]]).flatten()
+                                                            for object in [object["snippet"] for object in content[1]["items"]]]]).flatten()
     channel_urls = get_video_urls(channels)
 
 
