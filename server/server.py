@@ -64,8 +64,7 @@ def get_real_token():
     credentials = flow.step2_exchange(code)
     oauth2client.credentials.refresh(http)
     credentials = flow.step2_exchange(code)
-    logging.info("Here is the code: ")
-    return credentials
+    return
 
 
 @app.route('/api/get_subscriptions', methods=['POST'])
