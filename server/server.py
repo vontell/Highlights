@@ -56,8 +56,15 @@ def get_real_token():
     code = request.args.get('code')
     credentials = flow.step2_exchange(code)
     logging.info("Here is the code: ")
-    logging.info(code)
-    db.mvp.insert(code)
+    url_to_get = 'https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=' + \
+        code
+    user_json = requests.get(url_to_get)
+    logging.info(user_json)
+    name = user_json['name'] + ' ' + user_json['family_name']
+    logging.info(credentials)
+    creds_to_insert = {name: credentials}
+    logging.info(creds_to_insert)
+    db.mvp.insert(creds_to_insert)
 
     # try:
     #     returned_code = request.args.get('code')
