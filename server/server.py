@@ -51,18 +51,17 @@ def get_oauth_token():
             'url': url_to_return
         }
         logging.info(return_json)
-        resp = Response(
-            response=return_json, status=200, mimetype='application/json')
-        esp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
+        return redirect(url_to_return)
+        # resp = Response(
+        #     response=return_json, status=200, mimetype='application/json')
     except:
         logging.info("Error: ", sys.exc_info()[0])
         status_info = sys.exc_info()[0]
         resp = Response(
             response=status_info, status=200, mimetype='application/json')
         raise
-        resp.headers['Access-Control-Allow-Origin'] = '*'
-        return resp
+    # resp.headers['Access-Control-Allow-Origin'] = '*'
+    # return resp
 
 
 @app.route('/api/oauth2callback', methods=['POST'])
