@@ -1,4 +1,5 @@
 import requests
+import os
 import logging
 import httplib2
 import json
@@ -78,7 +79,6 @@ def get_real_token():
         # credentials.refresh(http)
         user_video_data = get_subscriptions()
         logging.info(user_video_data)
-        get_subscriptions()
         return user_video_data
 
 
@@ -123,34 +123,6 @@ def get_ids(str):
             id = splitted[i][:splitted[i].index('"')]
             ids.append(id)
     return ids
-
-
-@app.route('/api/get_videos', methods=['POST'])
-def get_videos():
-    user_info = request.get_json(force=True)
-    # Go to the DB and get the user.
-    user = db.mvp.find_one(user_info)
-
-    # --------------------------------------
-    # Request Subscription data from Google.
-    # --------------------------------------
-    print(user)
-
-    # Sample URL
-    # curl
-    # https://www.googleapis.com/youtube/v3/activities
-    fetch_url = 'https://www.googleapis.com/youtube/v3/activities?part=snippet&home=true'
-    req = urllib2.Request(fetch_url)
-
-    # Sample Header
-    # Authorization: Bearer ACCESS_TOKEN
-    req.add_header('Authorization: Bearer', user[access_token])
-    resp = urllib.urlopen(req)
-
-    # This is a user's recommended videos as seen on the home page.
-    content = resp.read()
-    ids = [object["id"] for object in content["items"]]
-    get_video_urls(user, ids)
 
 
 def get_video_urls(user, ids):
