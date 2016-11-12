@@ -39,7 +39,7 @@ def get_oauth_token():
     try:
         json_builder = {
             'client_id': "http://1067255681104-s1kfgl18d0obj1p75ab4pk55sgjgnh1a.apps.googleusercontent.com",
-            'redirect_uri': 'http%3A%2F%2Flocalhost%2Fapi%2Foauth2callback',
+            'redirect_uri': 'http%3A%2F%2F66.175.210.39%2Fapi%2Foauth2callback',
             'scope': 'https://www.googleapis.com/auth/youtube',
             'response_type': 'code',
             'access_type': 'offline'
@@ -81,7 +81,7 @@ def get_real_token():
             'code': returned_code,
             'client_id': 'http://1067255681104-s1kfgl18d0obj1p75ab4pk55sgjgnh1a.apps.googleusercontent.com',
             'client_secret': 'COZAHeThpabL7r1Jw4b4qOqs',
-            'redirect_uri': 'http%3A%2F%2Flocalhost%2Fapi%2Frequst_fallback',
+            'redirect_uri': 'http%3A%2F%2F66.175.210.39%2Fapi%2Frequst_fallback',
             'grant_type': 'authorization_code'
         }
         # Make the request to Google and hopefully get back the legit
