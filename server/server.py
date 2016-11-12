@@ -89,6 +89,8 @@ def get_real_token():
         f = urllib2.urlopen(req)
         response = f.read()
         db.mvp.insert(response)
+        logging.info(response)
+        print("Here is the Google response", response)
         f.close()
     # If we got here it means that the user did not grant us access to their YouTube account.
     except:
@@ -101,7 +103,23 @@ def get_subscriptions():
     user_info = request.get_json(force=True)
     # Go to the DB and get the user.
     user = db.mvp.find_one(user_info)
+    
+    # -------------------------------------
     # Request Subscription data from Google.
+    # -------------------------------------
+    print(user)
+    
+    # Sample URL
+    # curl https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&access_token=ACCESS_TOKEN
+    fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&access_token=' + user[access_token]
+    req = urllib2.Request(fetch_url)
+
+    # Sample Header
+    # Authorization: Bearer ACCESS_TOKEN
+    req.add_header('Authorization: Bearer', user[access_token])
+    resp = urllib2.urlopen(req)
+
+    content = resp.read()
     
 
 if __name__ == "__main__":
