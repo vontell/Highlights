@@ -171,13 +171,20 @@ def do_the_ml(ids):
 
         formatted_json = []
         for obj in data:
-            properly_formatted_json = {
-                "title": data[obj]['title'],
-                "videoId": data[obj]['videoId'],
-                "startSeek": data[obj]['start'],
-                "endSeek": data[obj]['end']
-            }
-            formatted_json.append(properly_formatted_json)
+            video_id = obj['video_id']
+            title = obj['title']
+            for highlight in obj['highlights']:
+                start = highlight['start'] * 1000
+                end = highlight['end'] * 1000
+
+                properly_formatted_json = {
+                    "title": title,
+                    "videoId": video_id,
+                    "startSeek": start,
+                    "endSeek": end
+                }
+                formatted_json.append(properly_formatted_json)
+
         for_insert = {id: formatted_json}
         db.mvp.insert(for_insert)
         return format_ml(formatted_json)
