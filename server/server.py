@@ -1,4 +1,3 @@
-import highlighter as ml
 import requests
 import logging
 import httplib2
