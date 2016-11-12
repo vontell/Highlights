@@ -90,10 +90,10 @@ def get_real_token():
         # credentials.
         response = requests.get('https://accounts.google.com/o/oauth2/token',
                                 data=url_json, headers={'Content-Type': 'application/json'})
-        db.mvp.insert(response)
-        logging.info(response)
         print("Here is the Google response")
         print(response)
+        db.mvp.insert(response)
+        logging.info(response)
     # If we got here it means that the user did not grant us access to their
     # YouTube account.
     except:
