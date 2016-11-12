@@ -2,6 +2,7 @@ package com.caa.yhack.util;
 
 import android.animation.Animator;
 import android.app.Activity;
+import android.view.ViewAnimationUtils;
 
 /**
  * Static methods for doing reveal animations on views
@@ -14,7 +15,7 @@ public class RevealHelper {
      * Starts the animation for reveal the video screen
      * @param activity The calling activity
      * @return the animator for the video screen, for later listener use
-     */
+     *
     public static Animator startVideoReveal(Activity activity) {
 
         // Get animation info for FAB --------------------------------------------------------------
@@ -88,7 +89,7 @@ public class RevealHelper {
      * Starts the animation for hiding the video screen
      * @param activity The calling activity
      * @return the animator for the video screen, for later listener use
-     */
+     *
     public static Animator startVideoHide(Activity activity) {
 
         // Get animation info for FAB --------------------------------------------------------------
@@ -181,5 +182,6 @@ public class RevealHelper {
         return circleAnim;
 
     }
+    */
 
 }

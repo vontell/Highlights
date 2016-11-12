@@ -1,8 +1,11 @@
 package com.caa.yhack;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.caa.yhack.net.Downloader;
 import com.caa.yhack.spec.HomePageObject;
 import com.caa.yhack.views.VideoArrayAdapter;
 import com.caa.yhack.youtube.Video;
@@ -14,22 +17,25 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private ParallaxListView wideList;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        this.context = this;
+
         wideList = (ParallaxListView) findViewById(R.id.parallaxListView);
         wideList.setDividerHeight(5);
+
+        loadHomeObjects();
 
     }
 
     public void loadHomeObjects() {
 
-        // TODO: Replace this with actual call
-        HomePageObject[] objects = getTestVids();
-        VideoArrayAdapter adapter = new VideoArrayAdapter(this, objects);
+        new GetVideos().execute();
 
     }
 
@@ -45,7 +51,30 @@ public class MainActivity extends AppCompatActivity {
         list.add(new Video("GMail Motion", "Bu927_ul_X0", 0, 1, 5, false));
         list.add(new Video("Translate for Animals", "3I24bSteJpw", 0, 1, 5, false));
 
-        return (HomePageObject[]) list.toArray();
+        return list.toArray(new HomePageObject[0]);
+
+    }
+
+    private class GetVideos extends AsyncTask<Void, Void, HomePageObject[]> {
+
+        @Override
+        protected HomePageObject[] doInBackground(Void ... params) {
+
+            HomePageObject[] homePageObjects = getTestVids();
+            return homePageObjects;
+
+        }
+
+        @Override
+        protected void onPostExecute(HomePageObject[] result) {
+            Downloader.attachThumbnails(context, result);
+            VideoArrayAdapter adapter = new VideoArrayAdapter(context, result);
+            wideList.setAdapter(adapter);
+        }
+
+        @Override
+        protected void onPreExecute() {}
+
     }
 
 }

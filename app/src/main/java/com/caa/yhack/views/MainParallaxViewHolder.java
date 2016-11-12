@@ -25,7 +25,12 @@ public class MainParallaxViewHolder extends ParallaxViewHolder {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mainView = inflater.inflate(layoutType, parent, false);
+        this.itemView = mainView;
 
+    }
+
+    public View getView() {
+        return mainView;
     }
 
     /**
@@ -55,6 +60,7 @@ public class MainParallaxViewHolder extends ParallaxViewHolder {
     public void setParallaxBackground(ParallaxImageView image) {
 
         this.setBackgroundImage(image);
+        this.getBackgroundImage().reuse();
 
     }
 

@@ -16,6 +16,7 @@ public class Video implements HomePageObject {
     private int endSeek;
     private int views;
     private boolean seen;
+    private ParallaxImageView background;
 
     /**
      * Creates a video representation that we can retrieve from the YouTube API
@@ -37,7 +38,7 @@ public class Video implements HomePageObject {
 
     @Override
     public ParallaxImageView getBackgroundImage() {
-        return null;
+        return background;
     }
 
     /**
@@ -94,11 +95,23 @@ public class Video implements HomePageObject {
     }
 
     /**
+     * Returns the videoId
+     * @return te videoId
+     */
+    public String getVideoId() {
+        return videoId;
+    }
+
+    /**
      * Sets whether or not this video has been seen
      * @param seen true if this video was seen, or false otherwise
      */
     public void setSeen(boolean seen){
         this.seen = seen;
+    }
+
+    public void setBackground(ParallaxImageView image) {
+        this.background = image;
     }
 
 }

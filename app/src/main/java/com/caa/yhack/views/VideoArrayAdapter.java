@@ -7,7 +7,6 @@ import android.widget.ArrayAdapter;
 
 import com.caa.yhack.R;
 import com.caa.yhack.spec.HomePageObject;
-import com.caa.yhack.youtube.Video;
 
 /**
  * An array adapter for our videos from youtube
@@ -35,10 +34,10 @@ public class VideoArrayAdapter extends ArrayAdapter<HomePageObject> {
         viewHolder.setTitle(homeObject.getTitle());
         viewHolder.setTidbit(homeObject.getTidbit());
 
-        viewHolder.getBackgroundImage().reuse();
-        convertView.setTag(viewHolder);
+        View view = viewHolder.getView();
+        view.setTag(viewHolder);
 
-        return convertView;
+        return view;
 
     }
 

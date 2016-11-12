@@ -11,7 +11,9 @@ import com.yayandroid.parallaxlistview.ParallaxImageView;
 public interface HomePageObject {
 
     ParallaxImageView getBackgroundImage();
+    void setBackground(ParallaxImageView image);
     String getTitle();
     String getTidbit();
+    String getVideoId();
 
 }
