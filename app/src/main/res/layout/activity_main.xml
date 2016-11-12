@@ -18,19 +18,44 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:background="@color/colorPrimary"
+        android:background="@android:color/black"
         android:id="@+id/video_screen"
-        android:descendantFocusability="blocksDescendants"
-        android:visibility="invisible">
+        android:visibility="gone"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
         <fragment
             android:name="com.google.android.youtube.player.YouTubePlayerFragment"
             android:id="@+id/youtube_fragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_above="@+id/interceptor"
+            android:layout_below="@+id/countdown" />
+
+        <TextView
+            android:text="@string/close"
+            android:id="@+id/interceptor"
+            android:layout_width="match_parent"
+            android:visibility="visible"
+            android:layout_height="64dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:background="@android:color/black"
+            android:textColor="@android:color/white"
+            android:gravity="center"></TextView>
+
+        <TextView
+            android:text="5"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:textColor="@android:color/white"
+            android:id="@+id/countdown"
+            android:layout_margin="16dp"
+            android:textSize="24sp"
+            android:background="@drawable/countdown_border"
+            android:gravity="center"
+            android:layout_height="36dp"
+            android:layout_width="36dp" />
 
     </RelativeLayout>
 

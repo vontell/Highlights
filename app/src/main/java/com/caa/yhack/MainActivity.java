@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -13,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.caa.yhack.spec.HomePageObject;
 import com.caa.yhack.util.RevealHelper;
@@ -26,6 +28,8 @@ import com.google.android.youtube.player.YouTubePlayerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnInitializedListener {
 
@@ -36,6 +40,12 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
     private Video[] currentSelection;
     private YouTubePlayer player;
     YouTubePlayerFragment youTubePlayerFragment;
+    private TextView countdownTimer;
+
+    // FOR USE WITH PLAYBACK
+    ArrayList<Integer> starts;
+    ArrayList<Integer> lengths;
+    ArrayList<String> videos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
         wideList = (ListView) findViewById(R.id.parallaxListView);
         videoView = findViewById(R.id.video_screen);
+        countdownTimer = (TextView) findViewById(R.id.countdown);
 
         loadHomeObjects();
 
@@ -115,13 +126,13 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
     private Video[] getTestVids() {
 
         List<Video> list = new ArrayList<Video>();
-        list.add(new Video("YouTube Collection", "Y_UmWdcTrrc", 0, 1, 5, false));
-        list.add(new Video("GMail Tap", "1KhZKNZO8mQ", 0, 1, 5, false));
-        list.add(new Video("Chrome Multitask", "UiLSiqyDf4Y", 0, 1, 5, false));
-        list.add(new Video("Google Fiber", "re0VRK6ouwI", 0, 1, 5, false));
-        list.add(new Video("Autocompleter", "blB_X38YSxQ", 0, 1, 5, false));
-        list.add(new Video("GMail Motion", "Bu927_ul_X0", 0, 1, 5, false));
-        list.add(new Video("Translate for Animals", "3I24bSteJpw", 0, 1, 5, false));
+        list.add(new Video("YouTube Collection", "Y_UmWdcTrrc", 5000, 10000, 5, false));
+        list.add(new Video("GMail Tap", "1KhZKNZO8mQ", 5000, 10000, 5, false));
+        list.add(new Video("Chrome Multitask", "UiLSiqyDf4Y", 5000, 10000, 5, false));
+        list.add(new Video("Google Fiber", "re0VRK6ouwI", 5000, 10000, 5, false));
+        list.add(new Video("Autocompleter", "blB_X38YSxQ", 5000, 10000, 5, false));
+        list.add(new Video("GMail Motion", "Bu927_ul_X0", 5000, 10000, 5, false));
+        list.add(new Video("Translate for Animals", "3I24bSteJpw", 5000, 10000, 5, false));
 
         return list.toArray(new Video[0]);
 
@@ -132,8 +143,20 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
      */
     public void showVideoScreen(int position, float x, float y) {
 
-        player.cueVideo(currentSelection[position].getVideoId());
-        new PlayWaitTask().execute();
+        // Construct the queue of videos
+        videos = new ArrayList<>();
+        starts = new ArrayList<>();
+        lengths = new ArrayList<>();
+        for (int i = position; i < currentSelection.length; i++) {
+            videos.add(currentSelection[i].getVideoId());
+            starts.add(currentSelection[i].getStartSeek());
+            lengths.add(currentSelection[i].getEndSeek() - currentSelection[i].getStartSeek());
+        }
+
+        player.loadVideos(videos);
+        player.cueVideos(videos);
+
+        queueVideos();
 
         Log.e("VIDEO", "PLAYING VIDEO");
 
@@ -239,17 +262,18 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
     }
 
     private void setVideoScreenListener() {
-        videoView.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.interceptor).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.e("VIDEO", "Video is clicked");
                 hideVideoScreen(lastTouch[0], lastTouch[1]);
+                player.pause();
             }
         });
+
     }
 
     private void removeVideoScreenListener() {
-        videoView.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.interceptor).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
             }
@@ -285,6 +309,74 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
         protected void onPostExecute(Void aVoid) {
             player.play();
         }
+    }
+
+    public void queueVideos() {
+
+        startTimer();
+
+        int sum = 0;
+        for(int i = 0; i < lengths.size(); i++) {
+
+            Integer[] time = {lengths.get(i), starts.get(i)};
+            new NextCoordTask().execute(time);
+            sum += lengths.get(i) + 700;
+
+        }
+
+    }
+
+    public void startTimer() {
+
+        final Handler handler = new Handler();
+
+        final Runnable r = new Runnable() {
+            public void run() {
+                setCountdown(Math.max(0, Integer.parseInt("" + countdownTimer.getText()) - 1));
+                handler.postDelayed(this, 1000);
+            }
+        };
+
+        handler.postDelayed(r, 1000);
+
+    }
+
+    private class NextCoordTask extends AsyncTask<Integer, Void, Void> {
+
+        int start = 0;
+        int baseLength = 0;
+
+        @Override
+        protected Void doInBackground(Integer... length) {
+            try {
+                start = length[1];
+                baseLength = length[0];
+                Thread.sleep(length[0]);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if(player.hasNext()) {
+                player.next();
+                Log.e("START", "" + start);
+                player.seekToMillis(start);
+                setCountdown(baseLength / 1000);
+                new PlayWaitTask().execute();
+            } else {
+                player.pause();
+                hideVideoScreen(lastTouch[0], lastTouch[1]);
+            }
+        }
+    }
+
+    public void setCountdown(int seconds) {
+
+        countdownTimer.setText("" + seconds);
+
     }
 
 }
