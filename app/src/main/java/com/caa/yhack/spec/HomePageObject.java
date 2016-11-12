@@ -2,8 +2,6 @@ package com.caa.yhack.spec;
 
 import android.widget.ImageView;
 
-import com.yayandroid.parallaxlistview.ParallaxImageView;
-
 /**
  * An interface that defines methods for getting information
  * about a view on the homepage

@@ -8,7 +8,6 @@ import com.caa.yhack.R;
 import com.caa.yhack.spec.HomePageObject;
 import com.caa.yhack.views.VideoArrayAdapter;
 import com.squareup.picasso.Picasso;
-import com.yayandroid.parallaxlistview.ParallaxImageView;
 
 /**
  * A class that contains methods for downloading content from the internet

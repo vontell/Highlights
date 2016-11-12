@@ -6,11 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
 
-import com.caa.yhack.net.Downloader;
 import com.caa.yhack.spec.HomePageObject;
 import com.caa.yhack.views.VideoArrayAdapter;
 import com.caa.yhack.youtube.Video;
-import com.yayandroid.parallaxlistview.ParallaxListView;
 
 import java.util.ArrayList;
 import java.util.List;
