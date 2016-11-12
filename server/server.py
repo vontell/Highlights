@@ -62,9 +62,9 @@ def get_real_token():
                                scope='https://www.googleapis.com/auth/youtube',
                                redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
     code = request.args.get('code')
-    credentials = flow.step2_exchange(code)
-    storage.put(credentials)
-    credentials.refresh(http)
+    #credentials = flow.step2_exchange(code)
+    storage.put(flow.step2_exchange(code))
+    # credentials.refresh(http)
     return
 
 
