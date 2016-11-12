@@ -2,10 +2,13 @@ package com.caa.yhack;
 
 import android.animation.Animator;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,20 +21,21 @@ import com.caa.yhack.youtube.Video;
 import com.google.android.youtube.player.YouTubeBaseActivity;
 import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.android.youtube.player.YouTubePlayerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener {
+public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnInitializedListener {
 
     private ListView wideList;
     private View videoView;
     private Context context;
     private float[] lastTouch = new float[2];
     private Video[] currentSelection;
-    private int currentIndex = 0;
     private YouTubePlayer player;
+    YouTubePlayerFragment youTubePlayerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +75,35 @@ public class MainActivity extends YouTubeBaseActivity implements YouTubePlayer.O
             }
         });
 
-        YouTubePlayerView youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
-        youTubeView.initialize(getString(R.string.API_KEY), this);
+        youTubePlayerFragment =
+                (YouTubePlayerFragment) getFragmentManager().findFragmentById(R.id.youtube_fragment);
+        youTubePlayerFragment.initialize(getString(R.string.API_KEY), this);
 
         setWideListListener();
         removeVideoScreenListener();
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.login_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_login) {
+            Intent intent = new Intent(this, WebAuthActivity.class);
+            startActivity(intent);
+            this.finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public void loadHomeObjects() {
@@ -84,7 +111,6 @@ public class MainActivity extends YouTubeBaseActivity implements YouTubePlayer.O
         new GetVideos().execute();
 
     }
-
 
     private Video[] getTestVids() {
 
@@ -107,7 +133,9 @@ public class MainActivity extends YouTubeBaseActivity implements YouTubePlayer.O
     public void showVideoScreen(int position, float x, float y) {
 
         player.cueVideo(currentSelection[position].getVideoId());
-        player.play();
+        new PlayWaitTask().execute();
+
+        Log.e("VIDEO", "PLAYING VIDEO");
 
         final Animator videoAnimator = RevealHelper.startVideoReveal(this, x, y);
         videoAnimator.addListener(new Animator.AnimatorListener() {
@@ -239,6 +267,24 @@ public class MainActivity extends YouTubeBaseActivity implements YouTubePlayer.O
     @Override
     public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
 
+    }
+
+    private class PlayWaitTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                Thread.sleep(700);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            player.play();
+        }
     }
 
 }

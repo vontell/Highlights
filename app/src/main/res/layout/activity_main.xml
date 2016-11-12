@@ -23,13 +23,14 @@
         android:layout_alignParentStart="true"
         android:background="@color/colorPrimary"
         android:id="@+id/video_screen"
+        android:descendantFocusability="blocksDescendants"
         android:visibility="invisible">
 
-        <com.google.android.youtube.player.YouTubePlayerView
-            android:id="@+id/youtube_view"
+        <fragment
+            android:name="com.google.android.youtube.player.YouTubePlayerFragment"
+            android:id="@+id/youtube_fragment"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"/>
+            android:layout_height="match_parent"/>
 
     </RelativeLayout>
 

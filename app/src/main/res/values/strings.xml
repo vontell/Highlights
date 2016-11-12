@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Highlights</string>
     <string name="API_KEY">AIzaSyC3QqbddOIlqx7pDdD66fziPnQezWqICAM</string> <!-- Don't look at this O.O -->
+    <string name="login">LOGIN</string>
+    <string name="logout">LOGOUT</string>
 </resources>
