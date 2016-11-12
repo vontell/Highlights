@@ -107,9 +107,7 @@ def get_subscriptions():
     # logging.info(json.d(content))
     # results = json.loads(result)
     ids = get_ids(result)
-    for obj in ids:
-        logging.info.(ids[i])
-    # logging.info(ids)
+    logging.info(ids)
     return 'ok'
 
 
