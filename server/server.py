@@ -79,10 +79,11 @@ def get_real_token():
             'code': returned_code,
             'client_id': 'some val from the Google Console',
             'client_secret': 'some other val from the Google Console',
-            'redirect_uri': 'http%3A%2F%2Flocalhost%2Fapi%2Frequst_fallback'
+            'redirect_uri': 'http%3A%2F%2Flocalhost%2Fapi%2Frequst_fallback',
             'grant_type': 'authorization_code'
         }
-        # Make the request to Google and hopefully get back the legit credentials.
+        # Make the request to Google and hopefully get back the legit
+        # credentials.
         req = urllib2.Request(
             'https://accounts.google.com/o/oauth2/token',
             url_json, {'Content-Type': 'application/json'})
@@ -92,26 +93,30 @@ def get_real_token():
         logging.info(response)
         print("Here is the Google response", response)
         f.close()
-    # If we got here it means that the user did not grant us access to their YouTube account.
+    # If we got here it means that the user did not grant us access to their
+    # YouTube account.
     except:
         logging.info("Error: ", sys.exc_info()[0])
         status_info = sys.exc_info()[0]
         raise
+
 
 @app.route('/api/get_subscriptions' methods=['POST'])
 def get_subscriptions():
     user_info = request.get_json(force=True)
     # Go to the DB and get the user.
     user = db.mvp.find_one(user_info)
-    
+
     # -------------------------------------
     # Request Subscription data from Google.
     # -------------------------------------
     print(user)
-    
+
     # Sample URL
-    # curl https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&access_token=ACCESS_TOKEN
-    fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&access_token=' + user[access_token]
+    # curl
+    # https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&access_token=ACCESS_TOKEN
+    fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&access_token=' + \
+        user[access_token]
     req = urllib2.Request(fetch_url)
 
     # Sample Header
@@ -120,7 +125,7 @@ def get_subscriptions():
     resp = urllib2.urlopen(req)
 
     content = resp.read()
-    
+
 
 if __name__ == "__main__":
     logging.info("Began running at {0}".format(datetime.now()))
