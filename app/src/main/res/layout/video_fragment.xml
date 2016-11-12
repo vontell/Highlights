@@ -12,4 +12,12 @@
         android:layout_alignParentEnd="true"
         android:id="@+id/imageView"
         android:layout_margin="16dp" />
+
+    <fragment
+        android:name="com.google.android.youtube.player.YouTubePlayerFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/video_container" />
 </RelativeLayout>
