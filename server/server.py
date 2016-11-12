@@ -185,7 +185,7 @@ def do_the_ml(ids):
     for id in ids:
         ml(id)
         data = []
-        with open('ml/out.json') as f:
+        with open('out.json') as f:
             for line in f:
                 data.append(json.loads(line))
 
