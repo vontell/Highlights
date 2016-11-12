@@ -45,11 +45,8 @@ def get_oauth_token():
             'access_type': 'offline'
         }
         url_to_return = 'https://accounts.google.com/o/oauth2/auth?client_id=' + \
-            json_builder['client_id']
-        + '&redirect_uri=' + str(json_builder['redirect_uri'])
-        + '&scope=' + str(json_builder['scope'])
-        + '&response_type=' + str(json_builder['response_type'])
-        + '&access_type=' + str(json_builder['access_type'])
+            json_builder['client_id'] + '&redirect_uri=' + str(json_builder['redirect_uri']) + '&scope=' + str(json_builder[
+                'scope']) + '&response_type=' + str(json_builder['response_type']) + '&access_type=' + str(json_builder['access_type'])
         return_json = {
             'url': url_to_return
         }
