@@ -133,7 +133,9 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
     public void showVideoScreen(int position, float x, float y) {
 
         player.cueVideo(currentSelection[position].getVideoId());
-        player.play();
+        new PlayWaitTask().execute();
+
+        Log.e("VIDEO", "PLAYING VIDEO");
 
         final Animator videoAnimator = RevealHelper.startVideoReveal(this, x, y);
         videoAnimator.addListener(new Animator.AnimatorListener() {
@@ -265,6 +267,24 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
     @Override
     public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
 
+    }
+
+    private class PlayWaitTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                Thread.sleep(700);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            player.play();
+        }
     }
 
 }
