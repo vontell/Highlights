@@ -7,7 +7,17 @@ import android.widget.ImageView;
 import com.caa.yhack.R;
 import com.caa.yhack.spec.HomePageObject;
 import com.caa.yhack.views.VideoArrayAdapter;
+import com.caa.yhack.youtube.Video;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * A class that contains methods for downloading content from the internet
@@ -18,6 +28,7 @@ import com.squareup.picasso.Picasso;
 public class Downloader {
 
     private static final String THUMBNAIL_URL = "https://img.youtube.com/vi/%ID%/0.jpg";
+    private static final String VIDEO_URL = "http://66.175.210.39/api/get_subscriptions";
 
     /**
      * Attaches thumbnails to the home page object that belongs on the homepage
@@ -38,6 +49,50 @@ public class Downloader {
 
     public static String getThumbnailUrl(String videoId) {
         return THUMBNAIL_URL.replace("%ID%", videoId);
+    }
+
+    /**
+     * Retrieve the list of videos that the user should watch
+     * @return the missed videos from their subscriptions
+     */
+    public static Video[] getVideos() {
+
+        try {
+
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(VIDEO_URL)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+            JSONArray result = new JSONArray(response.body().string());
+
+            Video[] videos = new Video[result.length()];
+
+            for(int i = 0; i < result.length(); i++) {
+
+                JSONObject jVid = result.getJSONObject(i);
+                String videoId = jVid.getString("videoId");
+                String title = jVid.getString("title");
+                int start = jVid.getInt("startSeek");
+                int end = jVid.getInt("endSeek");
+                int views = 0;
+                boolean seen = false;
+
+                Video video = new Video(title, videoId, start, end, views, seen);
+                videos[i] = video;
+
+            }
+
+            return videos;
+
+        } catch (Exception e) {
+
+            return new Video[0];
+
+        }
+
     }
 
 }
