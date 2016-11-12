@@ -88,9 +88,10 @@ def get_subscriptions():
     # Sample URL
     # curl
     # https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&access_token=ACCESS_TOKEN
-    fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&access_token=' + \
-        str(user[access_token])
-    credentials = storage.get()
+    fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true'
+    credentials = None
+    with open('credentials.pickle', 'wb') as f:
+        pickle.dump([credentials], f)
     http = credentials.authorize(http)
     content = http.request(fetch_url, "GET")
 
