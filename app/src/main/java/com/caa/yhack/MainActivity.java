@@ -1,7 +1,6 @@
 package com.caa.yhack;
 
 import android.animation.Animator;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -15,18 +14,24 @@ import android.widget.ListView;
 import com.caa.yhack.spec.HomePageObject;
 import com.caa.yhack.util.RevealHelper;
 import com.caa.yhack.views.VideoArrayAdapter;
-import com.caa.yhack.views.VideoFragment;
 import com.caa.yhack.youtube.Video;
+import com.google.android.youtube.player.YouTubeBaseActivity;
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener {
 
     private ListView wideList;
+    private View videoView;
     private Context context;
-    private VideoFragment videoFragment;
     private float[] lastTouch = new float[2];
+    private Video[] currentSelection;
+    private int currentIndex = 0;
+    private YouTubePlayer player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,14 +41,9 @@ public class MainActivity extends AppCompatActivity {
         this.context = this;
 
         wideList = (ListView) findViewById(R.id.parallaxListView);
+        videoView = findViewById(R.id.video_screen);
 
         loadHomeObjects();
-
-        // Attach the video fragment
-        videoFragment = new VideoFragment();
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.video_screen, videoFragment);
-        transaction.commit();
 
         // Recording touch positions for reveal
 
@@ -59,17 +59,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        wideList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        videoView.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+            public boolean onTouch(View v, MotionEvent event) {
 
-                Log.e("CLICKED", "Selected " + pos);
-
-                showVideoScreen(pos, lastTouch[0], lastTouch[1]);
-
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    lastTouch[0] = event.getX();
+                    lastTouch[1] = event.getY();
+                }
+                return false;
             }
         });
+
+        YouTubePlayerView youTubeView = (YouTubePlayerView) findViewById(R.id.youtube_view);
+        youTubeView.initialize(getString(R.string.API_KEY), this);
+
+        setWideListListener();
+        removeVideoScreenListener();
 
     }
 
@@ -80,9 +86,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private HomePageObject[] getTestVids() {
+    private Video[] getTestVids() {
 
-        List<HomePageObject> list = new ArrayList<HomePageObject>();
+        List<Video> list = new ArrayList<Video>();
         list.add(new Video("YouTube Collection", "Y_UmWdcTrrc", 0, 1, 5, false));
         list.add(new Video("GMail Tap", "1KhZKNZO8mQ", 0, 1, 5, false));
         list.add(new Video("Chrome Multitask", "UiLSiqyDf4Y", 0, 1, 5, false));
@@ -91,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         list.add(new Video("GMail Motion", "Bu927_ul_X0", 0, 1, 5, false));
         list.add(new Video("Translate for Animals", "3I24bSteJpw", 0, 1, 5, false));
 
-        return list.toArray(new HomePageObject[0]);
+        return list.toArray(new Video[0]);
 
     }
 
@@ -100,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
      */
     public void showVideoScreen(int position, float x, float y) {
 
-        // TODO: Go full screen
+        player.cueVideo(currentSelection[position].getVideoId());
+        player.play();
 
         final Animator videoAnimator = RevealHelper.startVideoReveal(this, x, y);
         videoAnimator.addListener(new Animator.AnimatorListener() {
@@ -112,7 +119,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd(Animator animator) {
                 // TODO: Start video here!
-                videoFragment.videoStart();
+                removeWideListListener();
+                setVideoScreenListener();
             }
 
             @Override
@@ -144,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animator) {
-
+                setWideListListener();
+                removeVideoScreenListener();
             }
 
             @Override
@@ -165,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected HomePageObject[] doInBackground(Void ... params) {
 
-            HomePageObject[] homePageObjects = getTestVids();
+            Video[] homePageObjects = getTestVids();
+            currentSelection = homePageObjects;
             return homePageObjects;
 
         }
@@ -178,6 +188,56 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {}
+
+    }
+
+    private void setWideListListener() {
+        wideList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+
+                showVideoScreen(pos, lastTouch[0], lastTouch[1]);
+
+            }
+        });
+    }
+
+    private void removeWideListListener() {
+        wideList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+            }
+        });
+    }
+
+    private void setVideoScreenListener() {
+        videoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e("VIDEO", "Video is clicked");
+                hideVideoScreen(lastTouch[0], lastTouch[1]);
+            }
+        });
+    }
+
+    private void removeVideoScreenListener() {
+        videoView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });
+    }
+
+    @Override
+    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer player,
+                                        boolean wasRestored) {
+        this.player = player;
+        player.setPlayerStyle(YouTubePlayer.PlayerStyle.CHROMELESS);
+
+    }
+
+    @Override
+    public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
 
     }
 

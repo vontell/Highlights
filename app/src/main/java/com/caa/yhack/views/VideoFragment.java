@@ -11,6 +11,11 @@ import android.widget.RelativeLayout;
 
 import com.caa.yhack.MainActivity;
 import com.caa.yhack.R;
+import com.caa.yhack.youtube.Video;
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerFragment;
+import com.google.android.youtube.player.YouTubePlayerView;
 
 /**
  * A fragment that will hold and play the YouTube videos
@@ -21,6 +26,10 @@ import com.caa.yhack.R;
 public class VideoFragment extends Fragment {
 
     private float[] lastTouch = new float[2];
+    private Video[] videos = null;
+    private int videoIndex = 0;
+    private YouTubePlayerFragment youTubePlayerFragment;
+    private YouTubePlayer yplayer;
 
     /**
      * Creates a new video fragment
@@ -65,12 +74,47 @@ public class VideoFragment extends Fragment {
 
     }
 
+    public void loadVideos(Video[] videos) {
+        this.videos = videos;
+        youTubePlayerFragment =
+                (YouTubePlayerFragment) getChildFragmentManager().findFragmentById(R.id.video_container);
+        youTubePlayerFragment.initialize(getString(R.string.API_KEY), new YouTubePlayer.OnInitializedListener() {
+            @Override
+            public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
+                yplayer = youTubePlayer;
+                nextVideo();
+            }
+
+            @Override
+            public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
+
+            }
+        });
+    }
+
     /**
      * Begins the process to start a video
      */
-    public void videoStart() {
+    public void videoStart( ) {
 
-        Log.d("RECORDING", "Video started");
+
+    }
+
+    public void nextVideo() {
+
+        //player.release();
+
+        if(videoIndex >= videos.length) {
+            ((MainActivity) getActivity()).hideVideoScreen(lastTouch[0], lastTouch[1]);
+        }
+
+        Video nextVid = videos[videoIndex];
+        videoIndex += 1;
+        Log.e("VIDEO", "Cueing next video");
+        yplayer.cueVideo(nextVid.getVideoId());
+
+        Log.e("VIDEO", "Playing next video");
+        yplayer.play();
 
     }
 
