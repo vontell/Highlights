@@ -23,6 +23,7 @@ public class WebAuthActivity extends AppCompatActivity {
         mWebView = new WebView(this);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+        mWebView.clearCache(true);
         mWebView.loadUrl("http://66.175.210.39/api/fetch_oauth");
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
