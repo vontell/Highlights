@@ -1,6 +1,7 @@
 import logging
 import json
 import tempfile
+import sys
 import numpy as np
 from urllib.request import urlopen
 from datetime import datetime
@@ -45,10 +46,10 @@ def get_oauth_token():
         }
         url_to_return = 'https://accounts.google.com/o/oauth2/auth?client_id=' + \
             json_builder['client_id']
-        + '&redirect_uri=' + json_builder['redirect_uri']
-        + '&scope=' + json_builder['scope']
-        + '&response_type=' + json_builder['response_type']
-        + '&access_type=' + json_builder['access_type']
+        + '&redirect_uri=' + str(json_builder['redirect_uri'])
+        + '&scope=' + str(json_builder['scope'])
+        + '&response_type=' + str(json_builder['response_type'])
+        + '&access_type=' + str(json_builder['access_type'])
         return_json = {
             'url': url_to_return
         }
@@ -119,7 +120,7 @@ def get_subscriptions():
     # curl
     # https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&access_token=ACCESS_TOKEN
     fetch_url = 'https://www.googleapis.com/youtube/v3/subscriptions?mine=true&access_token=' + \
-        user[access_token]
+        str(user[access_token])
     req = urllib2.Request(fetch_url)
 
     # Sample Header
@@ -168,7 +169,7 @@ def get_video_urls(user, ids):
     urls = []
     for id in ids:
         query_url = base_url + '?part=snippet&' + 'channelID=' + \
-            id + '&type=video' + '&order=date&maxResults=1'
+            str(id) + '&type=video' + '&order=date&maxResults=1'
         urls.append(query_url)
     get_most_recent_videos(user, urls)
 
