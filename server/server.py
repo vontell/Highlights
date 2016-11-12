@@ -90,7 +90,7 @@ def get_real_token():
         req = urllib.request.Request(
             'https://accounts.google.com/o/oauth2/token',
             url_json, {'Content-Type': 'application/json'})
-        f = urllib2.urlopen(req)
+        f = requests.get(req)
         response = f.read()
         db.mvp.insert(response)
         logging.info(response)
