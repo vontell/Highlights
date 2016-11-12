@@ -1,6 +1,6 @@
 package com.caa.yhack.spec;
 
-import com.yayandroid.parallaxlistview.ParallaxImageView;
+import android.widget.ImageView;
 
 /**
  * An interface that defines methods for getting information
@@ -10,8 +10,10 @@ import com.yayandroid.parallaxlistview.ParallaxImageView;
  */
 public interface HomePageObject {
 
-    ParallaxImageView getBackgroundImage();
+    ImageView getBackgroundImage();
+    void setBackground(ImageView image);
     String getTitle();
     String getTidbit();
+    String getVideoId();
 
 }
