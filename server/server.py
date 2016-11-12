@@ -183,7 +183,7 @@ def get_most_recent_videos(user, urls):
 def do_the_ml(ids):
    # insert Ali's script here
     for id in ids:
-        ml(id)
+        os.system("python2 highlighter.py %s" % id)
         data = []
         with open('out.json') as f:
             for line in f:
