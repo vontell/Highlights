@@ -112,13 +112,13 @@ def get_subscriptions():
 
 def get_ids(str):
     ids = []
-        splitted = str.split('"channelId":"')
-            for i in range(len(splitted)):
-                if i > 0:
-                    print splitted[i].index('"')
-                        id = splitted[i][:splitted[i].index('"')]
-                            ids.append(id)
-                                return ids
+    splitted = str.split('"channelId":"')
+    for i in range(len(splitted)):
+        if i > 0:
+            print splitted[i].index('"')
+            id = splitted[i][:splitted[i].index('"')]
+            ids.append(id)
+    return ids
 
 
 @app.route('/api/get_videos', methods=['POST'])
