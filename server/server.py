@@ -146,7 +146,7 @@ def get_ids(str):
     splitted = str.split('"channelId":"')
     for i in range(len(splitted)):
         if i > 0:
-            logging.info(splitted[i].index('"'))
+            #logging.info(splitted[i].index('"'))
             id = splitted[i][:splitted[i].index('"')]
             ids.append(id)
     return ids
@@ -211,8 +211,8 @@ def mthread(id, add_queue=True):
         # }
 
         for obj in data:
-            logging.info('Object: ')
-            logging.info(object)
+            #logging.info('Object: ')
+            #logging.info(object)
             video_id = obj['video_id']
             title = obj['title']
             for highlight in obj['highlights']:
