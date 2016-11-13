@@ -110,7 +110,6 @@ def get_subscriptions():
     # logging.info(json.d(content))
     # results = json.loads(result)
     ids = get_ids(result)
-    logging.info(ids)
     return do_the_ml(ids)
 
 
@@ -156,8 +155,7 @@ def do_the_ml(ids):
     global global_ml_queue
     if len(global_ml_queue) == 0 and len(threads) == 0:
         for id in ids:
-            logging.info(id)
-            thread = Thread(target=mthread, args=(id))
+            thread = Thread(target=mthread, args=(str(id)))
             thread.start()
             threads.append(thread)
     else:
