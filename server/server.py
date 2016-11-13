@@ -217,7 +217,8 @@ def return_ml():
     logging.info("Hit the ML endpoint for some data!")
     global global_ml_queue
     to_return = global_ml_queue
-    global_ml_queue = []
+    # disabling the following for testing purposes
+    # global_ml_queue = []
     logging.info(to_return)
     resp = Response(
         response=json.dumps(to_return), status=200,  mimetype="text/plain")
