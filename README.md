@@ -14,6 +14,20 @@ The first thing you're probably thinking is what this ambiguiously named applica
 
 Imagine this scenario: you subscribe to 25+ YouTube channels but over the past 3 weeks you simply haven't had the time to watch videos because of work. Today, you decide that you want to watch one of your favorite vloggers, but realize you might lack the context to understand what has happened in her/his life since you last watched which lead her/him to this current place. Here enters Highlights. Simply download the Android application, log in with your Google credentials and you will be able to watch the so called *highlights* of your subscriptions for all of the videos which you haven't seen. Rather than investing hours in watching your favorite vlogger's past weeks worth of videos, you can get caught up in 30 seconds - 1 minute by simply being presented with all of the most important content in those videos in one place, seamlessly.
 
+## Screenshots
+The homefeed view:
+![](media/device/6P_home.png)
+
+![](media/device/6P_home_2.png)
+
+The loading screen:
+![](media/device/6P_loading.png)
+
+The view of the player:
+![](media/device/6P_playing.png)
+
+![](media/device/6P_playing_2.png)
+
 ## Machine Learning and More
 
 Now that you understand the place and signifiance of Highlights, a platform that can distill any media into bite sized chunks that can be consumed quickly in the order of their importance, it is important to explain the technical details of how we achieve such a gargantuant feat.
