@@ -165,7 +165,7 @@ def do_the_ml(ids):
 def mthread(id):
     formatted_json = []
     try:
-        formatted_json = db.mvp.find_one({id})
+    formatted_json = db.mvp.find_one({"_id": id})['content']
     except:
         os.system("python2 highlighter.py %s" % id)
         data = []
@@ -199,7 +199,7 @@ def mthread(id):
                 }
                 formatted_json.append(properly_formatted_json)
 
-        for_insert = {id: formatted_json}
+        for_insert = {"_id": id, "content": formatted_json}
         db.mvp.insert(for_insert)
 
     return format_ml(formatted_json)
