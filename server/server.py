@@ -167,7 +167,7 @@ def mthread(id):
     formatted_json = None
     try:
         formatted_json = db.mvp.find_one({id})
-    catch:
+    except:
         os.system("python2 highlighter.py %s" % id)
         data = []
         with open('out.json') as data_file:
