@@ -1,24 +1,25 @@
-import requests
-import os
-import logging
-import httplib2
 import json
-import tempfile
+import logging
+import os
 import pickle
-import sys
-import oauth2client
-from oauth2client.client import OAuth2WebServerFlow, Storage
-import numpy as np
-import urllib
-from threading import Thread
 import pprint
-from urllib.request import urlopen
+import sys
+import tempfile
+import urllib
 from datetime import datetime
+from threading import Thread
+from urllib.request import urlopen
 
-from flask import Flask, jsonify, redirect, url_for, request, Response
+import httplib2
+import numpy as np
+import oauth2client
+import requests
+from oauth2client.client import OAuth2WebServerFlow, Storage
+
+from bson import json_util
+from flask import Flask, Response, jsonify, redirect, request, url_for
 from flask_login import *
 from pymongo import MongoClient
-from bson import json_util
 
 global_ml_queue = []
 
@@ -45,26 +46,34 @@ threads = []
 
 @app.route('/api/fetch_oauth', methods=["GET"])
 def get_oauth_token():
-    logging.info("Recieved a request to process OAUTH")
-    # Sample URL to build
-    # https://accounts.google.com/o/oauth2/auth?
-    # client_id=1084945748469-eg34imk572gdhu83gj5p0an9fut6urp5.apps.googleusercontent.com&
-    # redirect_uri=http%3A%2F%2Flocalhost%2Foauth2callback&
-    # scope=https://www.googleapis.com/auth/youtube&
-    # response_type=code&
-    # access_type=offline
-    flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
-                               client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
-                               scope='https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/userinfo.email',
-                               redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
-    auth_uri = flow.step1_get_authorize_url()
-    return redirect(auth_uri)
+    try:
+        with open('credentials.pickle', 'rb') as f:
+            credentials = pickle.load(f)[0]
+            pass
+    except FileNotFoundError:
+        logging.info("Recieved a request to process OAUTH")
+        # Sample URL to build
+        # https://accounts.google.com/o/oauth2/auth?
+        # client_id=1084945748469-eg34imk572gdhu83gj5p0an9fut6urp5.apps.googleusercontent.com&
+        # redirect_uri=http%3A%2F%2Flocalhost%2Foauth2callback&
+        # scope=https://www.googleapis.com/auth/youtube&
+        # response_type=code&
+        # access_type=offline
+        flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
+                                   client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
+                                   scope='https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/userinfo.email',
+                                   redirect_uri='http://li507-39.members.linode.com/api/oauth2callback')
+        auth_uri = flow.step1_get_authorize_url()
+        return redirect(auth_uri)
+
 
 @app.route('/api/get_channels', methods=['GET', 'POST'])
 def get_channels(q):
     if len(q) == 0:
         return 0
-    url = "https://www.googleapis.com/youtube/v3/search?q="+urllib.urlencode(q)+"&part=snippet&maxResults=15&type=channel&key=AIzaSyA2cu1skGcRjDfIpG2I1ri_MWeObrZGS30"
+    url = "https://www.googleapis.com/youtube/v3/search?q=" + \
+        urllib.urlencode(
+            q) + "&part=snippet&maxResults=15&type=channel&key=AIzaSyA2cu1skGcRjDfIpG2I1ri_MWeObrZGS30"
     feed1 = urllib.urlopen(url)
     feed1 = feed1.read()
     feed_json1 = json.loads(feed1)
@@ -79,6 +88,7 @@ def get_channels(q):
         response=json.dumps(ids), status=200,  mimetype="text/plain")
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
+
 
 @app.route('/api/get_channel_highlights', methods=['GET', 'POST'])
 def get_channel_highlights(id):
@@ -146,7 +156,7 @@ def get_ids(str):
     splitted = str.split('"channelId":"')
     for i in range(len(splitted)):
         if i > 0:
-            #logging.info(splitted[i].index('"'))
+            # logging.info(splitted[i].index('"'))
             id = splitted[i][:splitted[i].index('"')]
             ids.append(id)
     return ids
@@ -211,8 +221,8 @@ def mthread(id, add_queue=True):
         # }
 
         for obj in data:
-            #logging.info('Object: ')
-            #logging.info(object)
+            # logging.info('Object: ')
+            # logging.info(object)
             video_id = obj['video_id']
             title = obj['title']
             for highlight in obj['highlights']:
@@ -257,8 +267,13 @@ def return_ml():
     return resp
 
 if __name__ == "__main__":
-    os.remove('credentials.pickle')
-    logging.info('Succesfully removed credentials!')
+    # Wrap the deletion fo teh credentials in a try-catch in the event
+    # that they are not existent and we want to continue anyway.
+    try:
+        os.remove('credentials.pickle')
+        logging.info('Succesfully removed credentials!')
+    except:
+        pass
 
     # Run this with python3 server.py and then tail -f mvp.log
     logging.info("Began running at {0}".format(datetime.now()))
