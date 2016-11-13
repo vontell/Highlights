@@ -15,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -69,32 +70,43 @@ public class Downloader {
             Log.e("BACKEND", "About to call server");
             Response response = client.newCall(request).execute();
             Log.e("BACKEND", "Built Call");
-            JSONArray result = new JSONArray(response.body().string());
-            result = result.getJSONArray(0);
-            Log.e("BACKEND", "Got array: " + result.toString());
+            String whatIGot = response.body().string();
+            Log.e("BACKEND", "RECEIVED: "  + whatIGot);
+            JSONArray result = new JSONArray(whatIGot);
 
-            Video[] videos = new Video[result.length()];
+            ArrayList<Video> videos = new ArrayList<>();
 
-            for(int i = 0; i < result.length(); i++) {
+            for(int j = 0; j < result.length(); j++) {
 
-                JSONObject jVid = result.getJSONObject(i);
-                String videoId = jVid.getString("videoId");
-                String title = jVid.getString("title");
-                int start = jVid.getInt("startSeek");
-                int end = jVid.getInt("endSeek");
-                int views = 0;
-                boolean seen = false;
+                if(result.getJSONArray(j).length() > 0) {
 
-                Video video = new Video(title, videoId, start, end, views, seen);
-                videos[i] = video;
+                    JSONArray array = result.getJSONArray(j);
+
+                    for (int i = 0; i < array.length(); i++) {
+
+                        JSONObject jVid = array.getJSONObject(i);
+                        String videoId = jVid.getString("videoId");
+                        String title = jVid.getString("title");
+                        int start = jVid.getInt("startSeek");
+                        int end = jVid.getInt("endSeek");
+                        int views = 0;
+                        boolean seen = false;
+
+                        Video video = new Video(title, videoId, start, end, views, seen);
+                        videos.add(video);
+
+                    }
+
+                }
 
             }
 
-            return videos;
+            return videos.toArray(new Video[0]);
 
         } catch (Exception e) {
 
             Log.e("EXCEPTION", e.toString());
+            e.printStackTrace();
             return new Video[0];
 
         }

@@ -28,6 +28,8 @@ import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.android.youtube.player.YouTubePlayerView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -43,11 +45,17 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
     YouTubePlayerFragment youTubePlayerFragment;
     private TextView countdownTimer;
     private int noNewCount = 0;
+    private boolean shouldCount;
+    private ArrayList<String> categories;
+    private YouTubePlayer.OnInitializedListener listener;
+    private CueNextTrackTask cueTask;
 
     // FOR USE WITH PLAYBACK
     ArrayList<Integer> starts;
     ArrayList<Integer> lengths;
     ArrayList<String> videos;
+    int currentTrack = 0;
+    private boolean play = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +63,9 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
         setContentView(R.layout.activity_main);
 
         this.context = this;
+        this.listener = this;
+
+        startTimer();
 
         wideList = (ListView) findViewById(R.id.parallaxListView);
         videoView = findViewById(R.id.video_screen);
@@ -92,6 +103,13 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
         setWideListListener();
         removeVideoScreenListener();
+
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
     }
 
@@ -145,20 +163,60 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
      */
     public void showVideoScreen(int position, float x, float y) {
 
+        //position = ((VideoArrayAdapter) wideList.getAdapter()).getRealPosition(position);
+        currentTrack = 0;
+
         // Construct the queue of videos
         videos = new ArrayList<>();
         starts = new ArrayList<>();
         lengths = new ArrayList<>();
         for (int i = position; i < currentSelection.length; i++) {
-            videos.add(currentSelection[i].getVideoId());
-            starts.add(currentSelection[i].getStartSeek());
-            lengths.add(currentSelection[i].getEndSeek() - currentSelection[i].getStartSeek());
+            if(categories.get(position).equals(currentSelection[i].getVideoId())) {
+                videos.add(currentSelection[i].getVideoId());
+                Log.e("ID", currentSelection[i].getVideoId());
+                starts.add(currentSelection[i].getStartSeek());
+                lengths.add(currentSelection[i].getEndSeek() - currentSelection[i].getStartSeek());
+            }
         }
 
         player.loadVideos(videos);
         player.cueVideos(videos);
 
-        queueVideos();
+        player.setPlayerStateChangeListener(new YouTubePlayer.PlayerStateChangeListener() {
+            @Override
+            public void onLoading() {
+
+            }
+
+            @Override
+            public void onLoaded(String s) {
+                if(play) {
+                    playNext(true);
+                    play = false;
+                }
+
+            }
+
+            @Override
+            public void onAdStarted() {
+
+            }
+
+            @Override
+            public void onVideoStarted() {
+                player.seekToMillis(starts.get(currentTrack));
+            }
+
+            @Override
+            public void onVideoEnded() {
+
+            }
+
+            @Override
+            public void onError(YouTubePlayer.ErrorReason errorReason) {
+
+            }
+        });
 
         Log.e("VIDEO", "PLAYING VIDEO");
 
@@ -268,7 +326,15 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
             @Override
             public void onClick(View view) {
                 hideVideoScreen(lastTouch[0], lastTouch[1]);
-                player.pause();
+                try {
+                    player.release();
+                    youTubePlayerFragment =
+                            (YouTubePlayerFragment) getFragmentManager().findFragmentById(R.id.youtube_fragment);
+                    youTubePlayerFragment.initialize(getString(R.string.API_KEY), listener);
+                    setCountdown(0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -295,34 +361,104 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
     }
 
-    private class PlayWaitTask extends AsyncTask<Void, Void, Void> {
+    /**
+     * Play the next video, unless this is the first video (then play the first video)
+     * @param first True if this is the first video
+     */
+    public void playNext(boolean first){
+
+        Log.e("PLAYING", "Play next, where track is " + currentTrack + " and next is " + player.hasNext());
+        if(player.hasNext()) {
+
+            Log.e("PLAY", "WE HAVE NEXT");
+
+            // Pick the track
+            if(!first) {
+                player.next();
+                currentTrack++;
+            }
+
+            // Seek to the desired position
+            Log.e("TRACK START", "" + starts.get(currentTrack));
+            Log.e("TRACK LENGTH", "" + (lengths.get(currentTrack) / 1000.0));
+
+            // Start playing, and set countdown timer
+            Log.e("PLAY", "EXECUTING NEXT VID");
+            setCountdown(lengths.get(currentTrack) / 1000);
+            player.play();
+            player.seekToMillis(starts.get(currentTrack));
+
+            player.setPlaybackEventListener(new YouTubePlayer.PlaybackEventListener() {
+                @Override
+                public void onPlaying() {
+                    Log.e("ON_PLAYING", "");
+                }
+
+                @Override
+                public void onPaused() {
+                    Log.e("ON_PAUSE", "");
+                }
+
+                @Override
+                public void onStopped() {
+                    Log.e("ON_STOPPED", "");
+                }
+
+                @Override
+                public void onBuffering(boolean b) {
+                    Log.e("ON_BUFFERING", "" + b);
+                    shouldCount = !b;
+                    if(!b) {
+                        cueTask = new CueNextTrackTask();
+                        cueTask.execute();
+                    }
+
+                }
+
+                @Override
+                public void onSeekTo(int i) {
+                    Log.e("ON_SEEK_TO", "" + i);
+                }
+            });
+
+
+        } else {
+
+            player.pause();
+            hideVideoScreen(lastTouch[0], lastTouch[1]);
+            play = true;
+            try {
+                player.release();
+                youTubePlayerFragment =
+                        (YouTubePlayerFragment) getFragmentManager().findFragmentById(R.id.youtube_fragment);
+                youTubePlayerFragment.initialize(getString(R.string.API_KEY), this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+    }
+
+    private class CueNextTrackTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
+
             try {
-                Thread.sleep(700);
+                Thread.sleep(lengths.get(currentTrack));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             return null;
+
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            player.play();
-        }
-    }
-
-    public void queueVideos() {
-
-        startTimer();
-
-        int sum = 0;
-        for(int i = 0; i < lengths.size(); i++) {
-
-            Integer[] time = {lengths.get(i), starts.get(i)};
-            new NextCoordTask().execute(time);
-            sum += lengths.get(i) + 700;
+            Log.e("PLAY", "POST ON CUE");
+            playNext(false);
 
         }
 
@@ -334,45 +470,15 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
         final Runnable r = new Runnable() {
             public void run() {
-                setCountdown(Math.max(0, Integer.parseInt("" + countdownTimer.getText()) - 1));
+                if(shouldCount) {
+                    setCountdown(Math.max(0, Integer.parseInt("" + countdownTimer.getText()) - 1));
+                }
                 handler.postDelayed(this, 1000);
             }
         };
 
         handler.postDelayed(r, 1000);
 
-    }
-
-    private class NextCoordTask extends AsyncTask<Integer, Void, Void> {
-
-        int start = 0;
-        int baseLength = 0;
-
-        @Override
-        protected Void doInBackground(Integer... length) {
-            try {
-                start = length[1];
-                baseLength = length[0];
-                Thread.sleep(length[0]);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            if(player.hasNext()) {
-                player.next();
-                Log.e("START", "" + start);
-                player.seekToMillis(start);
-                setCountdown(baseLength / 1000);
-                new PlayWaitTask().execute();
-            } else {
-                player.pause();
-                hideVideoScreen(lastTouch[0], lastTouch[1]);
-            }
-        }
     }
 
     public void setCountdown(int seconds) {
@@ -396,13 +502,35 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
         protected void onPostExecute(Void aVoid) {
             if(videos.length != 0) {
                 noNewCount = 0;
-                currentSelection = combineArrays(currentSelection, videos);
-                VideoArrayAdapter adapter = new VideoArrayAdapter(context, currentSelection);
-                wideList.setAdapter(adapter);
+                if(currentSelection == null) {
+                    currentSelection = new Video[0];
+                }
+                currentSelection = concat(currentSelection, videos);
+                if(wideList.getAdapter() == null) {
+                    VideoArrayAdapter adapter = new VideoArrayAdapter(context, currentSelection);
+                    wideList.setAdapter(adapter);
+                } else {
+                    ((VideoArrayAdapter) wideList.getAdapter()).notifyDataSetChanged();
+                }
+                currentSelection = ((VideoArrayAdapter) wideList.getAdapter()).sortedByCategory();
+
+                // Generate and save categories
+
+                categories = new ArrayList<>();
+                for(Video obj : currentSelection) {
+
+                    String id = obj.getVideoId();
+                    if(!categories.contains(id)){
+                        categories.add(id);
+                    }
+
+                }
+
+
             } else {
                 noNewCount++;
                 if (noNewCount < 3) {
-                    new GrabFromQueueTask().execute();
+                    //new GrabFromQueueTask().execute();
                 }
             }
         }
@@ -426,32 +554,11 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
         }
     }
 
-    public Video[] combineArrays(Video[] v1, Video[] v2) {
+    public static <T> T[] concat(T[] first, T[] second) {
 
-        if(v1 == null && v2 == null) {
-            return v2;
-        }
-        else if (v1 == null) {
-            return v2;
-        } else if (v2 == null) {
-            return v1;
-        }
-
-        int newLength = v1.length + v2.length;
-        Video[] newArray = new Video[newLength];
-
-        int i = 0;
-        for(; i < v1.length; i++) {
-            newArray[i] = v1[i];
-        }
-
-        for(; i < newLength; i++) {
-            newArray[i] = v2[i - v1.length];
-        }
-
-        return newArray;
-
+        T[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
     }
-
 
 }
