@@ -18,6 +18,9 @@ Imagine this scenario: you subscribe to 25+ YouTube channels but over the past 3
 
 Now that you understand the place and signifiance of Highlights, a platform that can distill any media into bite sized chunks that can be consumed quickly in the order of their importance, it is important to explain the technical details of how we achieve such a gargantuant feat.
 
+Here is a visual representation of the pipeline we are about to explain:
+![](media/Pipeline-Diagram.png)
+
 Let's break down the pipeline.
 
 1. We start by accessing your Google account within the YouTube scope and get a list of your current subscriptions, 'activities' such as watched videos, comments, etc., your recommended videos and your home feed.
