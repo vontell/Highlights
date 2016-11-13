@@ -49,7 +49,7 @@ def get_oauth_token():
     try:
         with open('credentials.pickle', 'rb') as f:
             credentials = pickle.load(f)[0]
-            pass
+            return "succesfully authed already"
     except FileNotFoundError:
         logging.info("Recieved a request to process OAUTH")
         # Sample URL to build
@@ -105,6 +105,7 @@ def get_real_token():
     try:
         with open('credentials.pickle', 'rb') as f:
             credentials = pickle.load(f)[0]
+            return "success, didn't need to try and get a token"
     except FileNotFoundError:
         flow = OAuth2WebServerFlow(client_id='1067255681104-7dltm9n7mvb5v5ghl86p7bh1lc71jo6u.apps.googleusercontent.com',
                                    client_secret='TJit9VO6nzvJ03CRgoo3t_4e',
