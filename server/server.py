@@ -213,8 +213,6 @@ def return_ml():
 if __name__ == "__main__":
     os.remove('credentials.pickle')
     logging.info('Succesfully removed credentials!')
-    os.remove('mvp.log')
-    logging.info('Dumped the log file!')
 
     # Run this with python3 server.py and then tail -f mvp.log
     logging.info("Began running at {0}".format(datetime.now()))
