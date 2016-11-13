@@ -156,6 +156,7 @@ def do_the_ml(ids):
     global global_ml_queue
     if len(global_ml_queue) == 0 and len(threads) == 0:
         for id in ids:
+            logging.info(id)
             thread = Thread(target=mthread, args=(id))
             thread.start()
             threads.append(thread)
