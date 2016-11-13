@@ -8,6 +8,11 @@ import android.widget.ArrayAdapter;
 import com.caa.yhack.R;
 import com.caa.yhack.net.Downloader;
 import com.caa.yhack.spec.HomePageObject;
+import com.caa.yhack.youtube.Video;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * An array adapter for our videos from youtube
@@ -18,11 +23,33 @@ public class VideoArrayAdapter extends ArrayAdapter<HomePageObject> {
 
     private final Context context;
     private final HomePageObject[] listItems;
+    private final HashMap<String, ArrayList<HomePageObject>> cats;
+    private final Object[] titles;
 
     public VideoArrayAdapter(Context context, HomePageObject[] listItems) {
         super(context, -1, listItems);
         this.context = context;
         this.listItems = listItems;
+        this.cats = new HashMap<>();
+
+
+        // Filter the list of highlights by video
+        for(HomePageObject obj : listItems) {
+
+            String title = obj.getTitle();
+            if(cats.containsKey(title)){
+                ArrayList<HomePageObject> array = cats.get(title);
+                array.add(obj);
+            } else {
+                ArrayList<HomePageObject> newList = new ArrayList<>();
+                newList.add(obj);
+                cats.put(title, newList);
+            }
+
+        }
+
+        titles = cats.keySet().toArray();
+
     }
 
     @Override
@@ -30,11 +57,14 @@ public class VideoArrayAdapter extends ArrayAdapter<HomePageObject> {
 
         ViewHolder viewHolder = new ViewHolder(context, parent, R.layout.home_wide);
 
-        HomePageObject homeObject = listItems[position];
+        String title = (String) titles[position];
+        ArrayList<HomePageObject> highlights = cats.get(title);
+
+        HomePageObject homeObject = highlights.get(0);
 
         viewHolder.setBackground(context, homeObject.getVideoId());
         viewHolder.setTitle(homeObject.getTitle());
-        viewHolder.setTidbit(homeObject.getTidbit());
+        viewHolder.setTidbit("" + highlights.size() + " highlights");
 
         View view = viewHolder.getView();
 
@@ -42,9 +72,23 @@ public class VideoArrayAdapter extends ArrayAdapter<HomePageObject> {
 
     }
 
+    public int getRealPosition(int position) {
+
+        int actualPos = 0;
+        for(int i = 0; i < position; i++) {
+
+            String title = (String) titles[i];
+            actualPos += cats.get(title).size();
+
+        }
+
+        return actualPos;
+
+    }
+
     @Override
     public int getCount() {
-        return listItems.length;
+        return cats.size();
     }
 
     @Override
