@@ -4,6 +4,8 @@ A product of [YHack '16](http://www.yhack.org/). Built by Aaron Vontell, Ali Ben
 
 ## Table of Contents
 - [Overview](#overview)
+- [Video Walkthrough](#video-walkthrough)
+- [Screenshots](#screenshots)
 - [Machine Learning and More](#machine-learning-and-more)
 - [Our Infrastructure](#our-infrastructure)
 - [API](#api)
@@ -13,6 +15,9 @@ A product of [YHack '16](http://www.yhack.org/). Built by Aaron Vontell, Ali Ben
 The first thing you're probably thinking is what this ambiguiously named application is, and secondly, you're likely wondering why it has any significance. Firstly, Highlights is the missing component of your YouTube life, and secondly it's important because we leverage Machine Learning to find out what content is most important in a particular piece of media unlike it has ever been done before.
 
 Imagine this scenario: you subscribe to 25+ YouTube channels but over the past 3 weeks you simply haven't had the time to watch videos because of work. Today, you decide that you want to watch one of your favorite vloggers, but realize you might lack the context to understand what has happened in her/his life since you last watched which lead her/him to this current place. Here enters Highlights. Simply download the Android application, log in with your Google credentials and you will be able to watch the so called *highlights* of your subscriptions for all of the videos which you haven't seen. Rather than investing hours in watching your favorite vlogger's past weeks worth of videos, you can get caught up in 30 seconds - 1 minute by simply being presented with all of the most important content in those videos in one place, seamlessly.
+
+## Video Walkthrough
+![](https://youtu.be/6fu5A1hEb_g)
 
 ## Screenshots
 The homefeed view:
