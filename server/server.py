@@ -60,6 +60,34 @@ def get_oauth_token():
     auth_uri = flow.step1_get_authorize_url()
     return redirect(auth_uri)
 
+@app.route('/api/get_channels', methods=['GET', 'POST'])
+def get_channels(q):
+    if len(q) == 0:
+        return 0
+    url = "https://www.googleapis.com/youtube/v3/search?q="+urllib.urlencode(q)+"&part=snippet&maxResults=15&type=channel&key=AIzaSyA2cu1skGcRjDfIpG2I1ri_MWeObrZGS30"
+    feed1 = urllib.urlopen(url)
+    feed1 = feed1.read()
+    feed_json1 = json.loads(feed1)
+    ids = []
+    for item in feed_json1["items"]:
+        ids.append({"channel_id": item["snippet"]["channelId"],
+                    "title": item["snippet"]["title"],
+                    "description": item["snippet"]["description"],
+                    "thumbnails": item["snippet"]["thumbnails"]["default"]["url"]})
+
+    resp = Response(
+        response=json.dumps(ids), status=200,  mimetype="text/plain")
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+@app.route('/api/get_channel_highlights', methods=['GET', 'POST'])
+def get_channel_highlights(id):
+    result = mthread(id, add_queue=False)
+    resp = Response(
+        response=json.dumps(result), status=200,  mimetype="text/plain")
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
 
 @app.route('/api/oauth2callback', methods=['GET', 'POST'])
 def get_real_token():
@@ -162,7 +190,7 @@ def do_the_ml(ids):
         pass
 
 
-def mthread(id):
+def mthread(id, add_queue=True):
     formatted_json = []
     try:
         formatted_json = db.mvp.find_one({"_id": id})['content']
@@ -202,7 +230,10 @@ def mthread(id):
         for_insert = {"_id": id, "content": formatted_json}
         db.mvp.insert(for_insert)
 
-    return format_ml(formatted_json)
+    if add_queue:
+        format_ml(formatted_json)
+    else:
+        return formatted_json
 
 
 def format_ml(data):
