@@ -10,6 +10,7 @@ import oauth2client
 from oauth2client.client import OAuth2WebServerFlow, Storage
 import numpy as np
 import urllib
+from threading import Thread
 import pprint
 from urllib.request import urlopen
 from datetime import datetime
@@ -37,7 +38,7 @@ logging.basicConfig(filename='mvp.log', level=logging.DEBUG)
 database = "localhost:27017"
 client = MongoClient(database)
 db = client.beta
-
+threads = []
 # Build a URL that will query Google for an auth token. Then return this
 # URL to the client to get the token.
 
@@ -152,7 +153,21 @@ def get_most_recent_videos(user, urls):
 
 
 def do_the_ml(ids):
-    for id in ids:
+    global global_ml_queue
+    if len(global_ml_queue) == 0 and len(threads) == 0:
+        for id in ids:
+            thread = Thread(target=mthread, args=(id))
+            thread.start()
+            threads.append(thread)
+    else:
+        pass
+
+
+def mthread(id):
+    formatted_json = None
+    try:
+        formatted_json = db.mvp.find_one({id})
+    catch:
         os.system("python2 highlighter.py %s" % id)
         data = []
         with open('out.json') as data_file:
@@ -168,7 +183,6 @@ def do_the_ml(ids):
         # "seen": boolean if this is seen, if this even is a thing
         # }
 
-        formatted_json = []
         for obj in data:
             logging.info('Object: ')
             logging.info(object)
@@ -188,7 +202,8 @@ def do_the_ml(ids):
 
         for_insert = {id: formatted_json}
         db.mvp.insert(for_insert)
-        return format_ml(formatted_json)
+
+    return format_ml(formatted_json)
 
 
 def format_ml(data):
