@@ -202,14 +202,14 @@ def format_ml(data):
 def return_ml():
     global global_ml_queue
     to_return = global_ml_queue
-    global_ml_queue = []]
+    global_ml_queue = []
     resp = Response(
-        response = to_return, status = 200,  mimetype = "application/json")
-    resp.headers['Access-Control-Allow-Origin']='*'
+        response=to_return, status=200,  mimetype="application/json")
+    resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
 if __name__ == "__main__":
     # Run this with python3 server.py and then tail -f mvp.log
     logging.info("Began running at {0}".format(datetime.now()))
     logging.info(" ")
-    app.run(host = '0.0.0.0', port = 80)
+    app.run(host='0.0.0.0', port=80)
