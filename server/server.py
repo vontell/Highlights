@@ -49,7 +49,7 @@ def get_oauth_token():
     try:
         with open('credentials.pickle', 'rb') as f:
             credentials = pickle.load(f)[0]
-            return "succesfully authed already"
+            return "Wait a moment, processing your subscriptions. If you are not redirect automatically, please refresh."
     except FileNotFoundError:
         logging.info("Recieved a request to process OAUTH")
         # Sample URL to build
