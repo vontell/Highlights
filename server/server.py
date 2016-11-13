@@ -211,9 +211,9 @@ def return_ml():
     return resp
 
 if __name__ == "__main__":
-    os.remove('server/credentials.pickle')
+    os.remove('credentials.pickle')
     logging.info('Succesfully removed credentials!')
-    os.remove('server/mvp.log')
+    os.remove('mvp.log')
     logging.info('Dumped the log file!')
 
     # Run this with python3 server.py and then tail -f mvp.log
