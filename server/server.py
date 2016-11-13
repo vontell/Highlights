@@ -170,6 +170,8 @@ def do_the_ml(ids):
 
         formatted_json = []
         for obj in data:
+            logging.info('Object: ')
+            logging.info(object)
             video_id = obj['video_id']
             title = obj['title']
             for highlight in obj['highlights']:
