@@ -200,6 +200,7 @@ def format_ml(data):
 
 @app.route('/api/get_ml_data', methods=['GET'])
 def return_ml():
+    logging.info("Hit the ML endpoint for some data!")
     global global_ml_queue
     to_return = global_ml_queue
     global_ml_queue = []
@@ -210,6 +211,11 @@ def return_ml():
     return resp
 
 if __name__ == "__main__":
+    os.remove('server/credentials.pickle')
+    logging.info('Succesfully removed credentials!')
+    os.remove('server/mvp.log')
+    logging.info('Dumped the log file!')
+
     # Run this with python3 server.py and then tail -f mvp.log
     logging.info("Began running at {0}".format(datetime.now()))
     logging.info(" ")
