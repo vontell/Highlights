@@ -1,5 +1,5 @@
-import highlighter as ml
 import requests
+import os
 import logging
 import httplib2
 import json
@@ -77,9 +77,8 @@ def get_real_token():
             pickle.dump([credentials], f)
         # storage.put(flow.step2_exchange(code))
         # credentials.refresh(http)
-        user_video_data = get_subscriptions()
-        logging.info(user_video_data)
-        return user_video_data
+        get_subscriptions()
+        return 'success'
 
 
 @app.route('/api/get_subscriptions', methods=['GET'])
@@ -125,34 +124,6 @@ def get_ids(str):
     return ids
 
 
-@app.route('/api/get_videos', methods=['POST'])
-def get_videos():
-    user_info = request.get_json(force=True)
-    # Go to the DB and get the user.
-    user = db.mvp.find_one(user_info)
-
-    # --------------------------------------
-    # Request Subscription data from Google.
-    # --------------------------------------
-    print(user)
-
-    # Sample URL
-    # curl
-    # https://www.googleapis.com/youtube/v3/activities
-    fetch_url = 'https://www.googleapis.com/youtube/v3/activities?part=snippet&home=true'
-    req = urllib2.Request(fetch_url)
-
-    # Sample Header
-    # Authorization: Bearer ACCESS_TOKEN
-    req.add_header('Authorization: Bearer', user[access_token])
-    resp = urllib.urlopen(req)
-
-    # This is a user's recommended videos as seen on the home page.
-    content = resp.read()
-    ids = [object["id"] for object in content["items"]]
-    get_video_urls(user, ids)
-
-
 def get_video_urls(user, ids):
     base_url = 'https://www.googleapis.com/youtube/v3/search'
     urls = []
@@ -181,13 +152,11 @@ def get_most_recent_videos(user, urls):
 
 
 def do_the_ml(ids):
-   # insert Ali's script here
     for id in ids:
-        ml(id)
+        os.system("python2 highlighter.py %s" % id)
         data = []
-        with open('ml/out.json') as f:
-            for line in f:
-                data.append(json.loads(line))
+        with open('out.json') as data_file:
+            data = json.load(data_file)
 
         # Format for the data that Aaron wants.
         # {
@@ -200,32 +169,51 @@ def do_the_ml(ids):
         # }
 
         formatted_json = []
-        while obj in data != None:
-            properly_formatted_json = {
-                "title": data[obj]['title'],
-                "videoId": data[obj]['videoId'],
-                "startSeek": data[obj]['start'],
-                "endSeek": data[obj]['end']
-            }
-            formatted_json.append(properly_formatted_json)
+        for obj in data:
+            logging.info('Object: ')
+            logging.info(object)
+            video_id = obj['video_id']
+            title = obj['title']
+            for highlight in obj['highlights']:
+                start = highlight['start'] * 1000
+                end = highlight['end'] * 1000
+
+                properly_formatted_json = {
+                    "title": title,
+                    "videoId": video_id,
+                    "startSeek": start,
+                    "endSeek": end
+                }
+                formatted_json.append(properly_formatted_json)
+
         for_insert = {id: formatted_json}
         db.mvp.insert(for_insert)
         return format_ml(formatted_json)
 
 
-@app.route('/api/get_ml_data', methods=['GET'])
 def format_ml(data):
     global global_ml_queue
+    if global_ml_queue is None:
+        global_ml_queue = []
     global_ml_queue.append(data)
+
+
+@app.route('/api/get_ml_data', methods=['GET'])
+def return_ml():
+    logging.info("Hit the ML endpoint for some data!")
+    global global_ml_queue
     to_return = global_ml_queue
-    global_ml_queue = None
+    global_ml_queue = []
+    logging.info(to_return)
     resp = Response(
-        response=to_return, status=200,  mimetype="application/json")
+        response=json.dumps(to_return), status=200,  mimetype="application/json")
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
-
 if __name__ == "__main__":
+    os.remove('credentials.pickle')
+    logging.info('Succesfully removed credentials!')
+
     # Run this with python3 server.py and then tail -f mvp.log
     logging.info("Began running at {0}".format(datetime.now()))
     logging.info(" ")
