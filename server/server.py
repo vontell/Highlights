@@ -203,6 +203,7 @@ def return_ml():
     global global_ml_queue
     to_return = global_ml_queue
     global_ml_queue = []
+    logging.info(to_return)
     resp = Response(
         response=to_return, status=200,  mimetype="application/json")
     resp.headers['Access-Control-Allow-Origin'] = '*'
