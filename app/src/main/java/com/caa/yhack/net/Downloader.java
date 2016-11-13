@@ -1,6 +1,7 @@
 package com.caa.yhack.net;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
@@ -28,7 +29,7 @@ import okhttp3.Response;
 public class Downloader {
 
     private static final String THUMBNAIL_URL = "https://img.youtube.com/vi/%ID%/0.jpg";
-    private static final String VIDEO_URL = "http://66.175.210.39/api/get_subscriptions";
+    private static final String VIDEO_URL = "http://66.175.210.39/api/get_ml_data";
 
     /**
      * Attaches thumbnails to the home page object that belongs on the homepage
@@ -65,8 +66,12 @@ public class Downloader {
                     .url(VIDEO_URL)
                     .build();
 
+            Log.e("BACKEND", "About to call server");
             Response response = client.newCall(request).execute();
+            Log.e("BACKEND", "Built Call");
             JSONArray result = new JSONArray(response.body().string());
+            result = result.getJSONArray(0);
+            Log.e("BACKEND", "Got array: " + result.toString());
 
             Video[] videos = new Video[result.length()];
 
@@ -89,6 +94,7 @@ public class Downloader {
 
         } catch (Exception e) {
 
+            Log.e("EXCEPTION", e.toString());
             return new Video[0];
 
         }

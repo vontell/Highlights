@@ -60,8 +60,6 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
         videoView = findViewById(R.id.video_screen);
         countdownTimer = (TextView) findViewById(R.id.countdown);
 
-        loadHomeObjects();
-
         // Recording touch positions for reveal
 
         wideList.setOnTouchListener(new View.OnTouchListener() {
@@ -115,6 +113,8 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
             startActivity(intent);
             this.finish();
             return true;
+        } else if (id == R.id.action_refresh) {
+            loadHomeObjects();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -387,6 +387,7 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
         @Override
         protected Void doInBackground(Void... voids) {
+            Log.e("BACKEND", "GETTING VIDEOS");
             videos = Downloader.getVideos();
             return null;
         }
