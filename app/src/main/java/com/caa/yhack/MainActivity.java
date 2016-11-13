@@ -46,12 +46,16 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
     private TextView countdownTimer;
     private int noNewCount = 0;
     private boolean shouldCount;
+    private ArrayList<String> categories;
+    private YouTubePlayer.OnInitializedListener listener;
+    private CueNextTrackTask cueTask;
 
     // FOR USE WITH PLAYBACK
     ArrayList<Integer> starts;
     ArrayList<Integer> lengths;
     ArrayList<String> videos;
     int currentTrack = 0;
+    private boolean play = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
         setContentView(R.layout.activity_main);
 
         this.context = this;
+        this.listener = this;
 
         startTimer();
 
@@ -98,6 +103,13 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
         setWideListListener();
         removeVideoScreenListener();
+
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
     }
 
@@ -151,24 +163,60 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
      */
     public void showVideoScreen(int position, float x, float y) {
 
-        position = ((VideoArrayAdapter) wideList.getAdapter()).getRealPosition(position);
-        currentTrack = position;
+        //position = ((VideoArrayAdapter) wideList.getAdapter()).getRealPosition(position);
+        currentTrack = 0;
 
         // Construct the queue of videos
         videos = new ArrayList<>();
         starts = new ArrayList<>();
         lengths = new ArrayList<>();
         for (int i = position; i < currentSelection.length; i++) {
-            videos.add(currentSelection[i].getVideoId());
-            Log.e("ID", currentSelection[i].getVideoId());
-            starts.add(currentSelection[i].getStartSeek());
-            lengths.add(currentSelection[i].getEndSeek() - currentSelection[i].getStartSeek());
+            if(categories.get(position).equals(currentSelection[i].getVideoId())) {
+                videos.add(currentSelection[i].getVideoId());
+                Log.e("ID", currentSelection[i].getVideoId());
+                starts.add(currentSelection[i].getStartSeek());
+                lengths.add(currentSelection[i].getEndSeek() - currentSelection[i].getStartSeek());
+            }
         }
 
         player.loadVideos(videos);
         player.cueVideos(videos);
 
-        queueVideos();
+        player.setPlayerStateChangeListener(new YouTubePlayer.PlayerStateChangeListener() {
+            @Override
+            public void onLoading() {
+
+            }
+
+            @Override
+            public void onLoaded(String s) {
+                if(play) {
+                    playNext(true);
+                    play = false;
+                }
+
+            }
+
+            @Override
+            public void onAdStarted() {
+
+            }
+
+            @Override
+            public void onVideoStarted() {
+                player.seekToMillis(starts.get(currentTrack));
+            }
+
+            @Override
+            public void onVideoEnded() {
+
+            }
+
+            @Override
+            public void onError(YouTubePlayer.ErrorReason errorReason) {
+
+            }
+        });
 
         Log.e("VIDEO", "PLAYING VIDEO");
 
@@ -278,7 +326,15 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
             @Override
             public void onClick(View view) {
                 hideVideoScreen(lastTouch[0], lastTouch[1]);
-                player.pause();
+                try {
+                    player.release();
+                    youTubePlayerFragment =
+                            (YouTubePlayerFragment) getFragmentManager().findFragmentById(R.id.youtube_fragment);
+                    youTubePlayerFragment.initialize(getString(R.string.API_KEY), listener);
+                    setCountdown(0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -305,43 +361,6 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
     }
 
-    private class PlayWaitTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            try {
-                Thread.sleep(700);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            playNext(true);
-        }
-    }
-
-    public void queueVideos() {
-
-        Log.e("QUEUE", "Cueing the vids");
-
-        /*
-        int sum = 0;
-        for(int i = 0; i < lengths.size(); i++) {
-
-            Integer[] time = {lengths.get(i), starts.get(i)};
-            new NextCoordTask().execute(time);
-            sum += lengths.get(i) + 700;
-
-        }
-        */
-
-        new PlayWaitTask().execute();
-
-    }
-
     /**
      * Play the next video, unless this is the first video (then play the first video)
      * @param first True if this is the first video
@@ -365,7 +384,9 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
             // Start playing, and set countdown timer
             Log.e("PLAY", "EXECUTING NEXT VID");
-            new PlayNextVidStartTask().execute();
+            setCountdown(lengths.get(currentTrack) / 1000);
+            player.play();
+            player.seekToMillis(starts.get(currentTrack));
 
             player.setPlaybackEventListener(new YouTubePlayer.PlaybackEventListener() {
                 @Override
@@ -388,7 +409,8 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
                     Log.e("ON_BUFFERING", "" + b);
                     shouldCount = !b;
                     if(!b) {
-                        new CueNextTrackTask().execute();
+                        cueTask = new CueNextTrackTask();
+                        cueTask.execute();
                     }
 
                 }
@@ -404,34 +426,19 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
 
             player.pause();
             hideVideoScreen(lastTouch[0], lastTouch[1]);
-
-        }
-
-    }
-
-    /**
-     * Waits for 700 milliseconds and then plays the video, starting a task to move on afterwards
-     */
-    private class PlayNextVidStartTask extends AsyncTask<Integer, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Integer... integers) {
+            play = true;
             try {
-                Thread.sleep(700);
-            } catch (InterruptedException e) {
+                player.release();
+                youTubePlayerFragment =
+                        (YouTubePlayerFragment) getFragmentManager().findFragmentById(R.id.youtube_fragment);
+                youTubePlayerFragment.initialize(getString(R.string.API_KEY), this);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            return null;
+
+
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            // Start playing, and set countdown timer
-            Log.e("PLAY", "POST ON PLAY NEXT");
-            setCountdown(lengths.get(currentTrack) / 1000);
-            player.play();
-            player.seekToMillis(starts.get(currentTrack));
-        }
     }
 
     private class CueNextTrackTask extends AsyncTask<Void, Void, Void> {
@@ -506,6 +513,20 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
                     ((VideoArrayAdapter) wideList.getAdapter()).notifyDataSetChanged();
                 }
                 currentSelection = ((VideoArrayAdapter) wideList.getAdapter()).sortedByCategory();
+
+                // Generate and save categories
+
+                categories = new ArrayList<>();
+                for(Video obj : currentSelection) {
+
+                    String id = obj.getVideoId();
+                    if(!categories.contains(id)){
+                        categories.add(id);
+                    }
+
+                }
+
+
             } else {
                 noNewCount++;
                 if (noNewCount < 3) {

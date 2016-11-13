@@ -45,7 +45,7 @@
             android:gravity="center"></TextView>
 
         <TextView
-            android:text="5"
+            android:text="0"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:textColor="@android:color/white"
