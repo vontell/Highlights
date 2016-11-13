@@ -56,6 +56,8 @@ Armed with this information we are able to derive a unqiue column vector for eac
 Our service is currently broken down into the following core components:
 
 - Highlights Android Application
+    - Built and tested on Android 7.0 Nougat, and uses the YouTube Android API Sample Project
+    - Also uses various open source libraries (OkHTTP, Picasso, ParallaxEverywhere, etc...)
 - Highlights Web Service (Backs the Pipeline)
 - The 'Highlighter' or rather our ML component
 

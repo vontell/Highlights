@@ -76,6 +76,7 @@ public class VideoArrayAdapter extends ArrayAdapter<HomePageObject> {
         viewHolder.setBackground(context, homeObject.getVideoId());
         viewHolder.setTitle(homeObject.getTitle());
         viewHolder.setTidbit("" + highlights.size() + " highlights");
+        viewHolder.setNew(Math.random() < 0.18);
 
         View view = viewHolder.getView();
 

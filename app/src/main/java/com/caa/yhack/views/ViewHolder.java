@@ -53,6 +53,16 @@ public class ViewHolder{
 
     }
 
+    /**
+     * Sets whether this home page object should be marked as new content
+     * @param newVid
+     */
+    public void setNew(boolean newVid) {
+
+        mainView.findViewById(R.id.new_badge).setVisibility(newVid ? View.VISIBLE : View.GONE);
+
+    }
+
     public void setBackground(Context context, String id) {
 
         String url = Downloader.getThumbnailUrl(id);
