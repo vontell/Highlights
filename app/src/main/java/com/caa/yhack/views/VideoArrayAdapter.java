@@ -1,6 +1,7 @@
 package com.caa.yhack.views;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -50,6 +51,16 @@ public class VideoArrayAdapter extends ArrayAdapter<HomePageObject> {
 
         titles = cats.keySet().toArray();
 
+        for(Object title : titles) {
+
+            for(HomePageObject vid : cats.get((String) title)) {
+
+                Log.e("VIDEO***", vid.toString());
+
+            }
+
+        }
+
     }
 
     @Override
@@ -83,6 +94,25 @@ public class VideoArrayAdapter extends ArrayAdapter<HomePageObject> {
         }
 
         return actualPos;
+
+    }
+
+    public Video[] sortedByCategory() {
+
+        Video[] resultsSorted = new Video[listItems.length];
+
+        int i = 0;
+        for(Object title : titles) {
+
+            ArrayList<HomePageObject> cat = cats.get(title);
+            for(HomePageObject obj : cat) {
+                resultsSorted[i] = (Video) obj;
+                i++;
+            }
+
+        }
+
+        return resultsSorted;
 
     }
 

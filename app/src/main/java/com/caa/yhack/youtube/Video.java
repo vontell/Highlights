@@ -115,4 +115,12 @@ public class Video implements HomePageObject {
         this.background = image;
     }
 
+    /**
+     * A string representation of the video
+     * @return 'TITLE: length'
+     */
+    public String toString() {
+        return title + ": " + (getStartSeek() - getEndSeek());
+    }
+
 }

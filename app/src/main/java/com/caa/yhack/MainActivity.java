@@ -28,6 +28,8 @@ import com.google.android.youtube.player.YouTubePlayerFragment;
 import com.google.android.youtube.player.YouTubePlayerView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -150,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
     public void showVideoScreen(int position, float x, float y) {
 
         position = ((VideoArrayAdapter) wideList.getAdapter()).getRealPosition(position);
+        currentTrack = position;
 
         // Construct the queue of videos
         videos = new ArrayList<>();
@@ -159,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
             videos.add(currentSelection[i].getVideoId());
             Log.e("ID", currentSelection[i].getVideoId());
             starts.add(currentSelection[i].getStartSeek());
-            lengths.add(currentSelection[i].getEndSeek() - currentSelection[i].getStartSeek() + 2000);
+            lengths.add(currentSelection[i].getEndSeek() - currentSelection[i].getStartSeek());
         }
 
         player.loadVideos(videos);
@@ -345,8 +348,7 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
      */
     public void playNext(boolean first){
 
-        Log.e("PLAYING", "Play next, where track is " + currentTrack);
-
+        Log.e("PLAYING", "Play next, where track is " + currentTrack + " and next is " + player.hasNext());
         if(player.hasNext()) {
 
             Log.e("PLAY", "WE HAVE NEXT");
@@ -493,13 +495,21 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
         protected void onPostExecute(Void aVoid) {
             if(videos.length != 0) {
                 noNewCount = 0;
-                currentSelection = combineArrays(currentSelection, videos);
-                VideoArrayAdapter adapter = new VideoArrayAdapter(context, currentSelection);
-                wideList.setAdapter(adapter);
+                if(currentSelection == null) {
+                    currentSelection = new Video[0];
+                }
+                currentSelection = concat(currentSelection, videos);
+                if(wideList.getAdapter() == null) {
+                    VideoArrayAdapter adapter = new VideoArrayAdapter(context, currentSelection);
+                    wideList.setAdapter(adapter);
+                } else {
+                    ((VideoArrayAdapter) wideList.getAdapter()).notifyDataSetChanged();
+                }
+                currentSelection = ((VideoArrayAdapter) wideList.getAdapter()).sortedByCategory();
             } else {
                 noNewCount++;
                 if (noNewCount < 3) {
-                    new GrabFromQueueTask().execute();
+                    //new GrabFromQueueTask().execute();
                 }
             }
         }
@@ -523,31 +533,11 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
         }
     }
 
-    public Video[] combineArrays(Video[] v1, Video[] v2) {
+    public static <T> T[] concat(T[] first, T[] second) {
 
-        if(v1 == null && v2 == null) {
-            return v2;
-        }
-        else if (v1 == null) {
-            return v2;
-        } else if (v2 == null) {
-            return v1;
-        }
-
-        int newLength = v1.length + v2.length;
-        Video[] newArray = new Video[newLength];
-
-        int i = 0;
-        for(; i < v1.length; i++) {
-            newArray[i] = v1[i];
-        }
-
-        for(; i < newLength; i++) {
-            newArray[i] = v2[i - v1.length];
-        }
-
-        return newArray;
-
+        T[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
     }
 
 }
