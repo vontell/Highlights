@@ -155,8 +155,8 @@ def do_the_ml(ids):
     for id in ids:
         os.system("python2 highlighter.py %s" % id)
         data = []
-        with open('out.json') as f:
-            data = json.loads(f)
+        with open('out.json') as data_file:
+            data = json.load(data_file)
 
         # Format for the data that Aaron wants.
         # {
