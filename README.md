@@ -4,6 +4,8 @@ A product of [YHack '16](http://www.yhack.org/). Built by Aaron Vontell, Ali Ben
 
 ## Table of Contents
 - [Overview](#overview)
+- [Video Walkthrough](#video-walkthrough)
+- [Screenshots](#screenshots)
 - [Machine Learning and More](#machine-learning-and-more)
 - [Our Infrastructure](#our-infrastructure)
 - [API](#api)
@@ -14,9 +16,29 @@ The first thing you're probably thinking is what this ambiguiously named applica
 
 Imagine this scenario: you subscribe to 25+ YouTube channels but over the past 3 weeks you simply haven't had the time to watch videos because of work. Today, you decide that you want to watch one of your favorite vloggers, but realize you might lack the context to understand what has happened in her/his life since you last watched which lead her/him to this current place. Here enters Highlights. Simply download the Android application, log in with your Google credentials and you will be able to watch the so called *highlights* of your subscriptions for all of the videos which you haven't seen. Rather than investing hours in watching your favorite vlogger's past weeks worth of videos, you can get caught up in 30 seconds - 1 minute by simply being presented with all of the most important content in those videos in one place, seamlessly.
 
+## Video Walkthrough
+[![Click me!](media/device/6P_home.png)](https://youtu.be/6fu5A1hEb_g)
+
+## Screenshots
+The homefeed view:
+![](media/device/6P_home.png)
+
+![](media/device/6P_home_2.png)
+
+The loading screen:
+![](media/device/6P_loading.png)
+
+The view of the player:
+![](media/device/6P_playing.png)
+
+![](media/device/6P_playing_2.png)
+
 ## Machine Learning and More
 
 Now that you understand the place and signifiance of Highlights, a platform that can distill any media into bite sized chunks that can be consumed quickly in the order of their importance, it is important to explain the technical details of how we achieve such a gargantuant feat.
+
+Here is a visual representation of the pipeline we are about to explain:
+![](media/non-device/Pipeline-Diagram.png)
 
 Let's break down the pipeline.
 
@@ -56,6 +78,8 @@ Armed with this information we are able to derive a unqiue column vector for eac
 Our service is currently broken down into the following core components:
 
 - Highlights Android Application
+    - Built and tested on Android 7.0 Nougat, and uses the YouTube Android API Sample Project
+    - Also uses various open source libraries (OkHTTP, Picasso, ParallaxEverywhere, etc...)
 - Highlights Web Service (Backs the Pipeline)
 - The 'Highlighter' or rather our ML component
 

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -110,6 +111,13 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                         | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+
+        ((SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout)).setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadHomeObjects();
+            }
+        });
 
     }
 
@@ -533,6 +541,8 @@ public class MainActivity extends AppCompatActivity implements YouTubePlayer.OnI
                     //new GrabFromQueueTask().execute();
                 }
             }
+
+            ((SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout)).setRefreshing(false);
         }
     }
 

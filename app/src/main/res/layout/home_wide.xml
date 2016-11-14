@@ -53,4 +53,14 @@
         android:paddingBottom="8dp"
         android:textStyle="normal|bold" />
 
+    <ImageView
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        app:srcCompat="@drawable/badge_new"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="8dp"
+        android:id="@+id/new_badge" />
+
 </RelativeLayout>
