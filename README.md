@@ -1,6 +1,6 @@
 # Highlights
 
-A product of [YHack '16](http://www.yhack.org/). Built by Aaron Vontell, Ali Benlalah & Cooper Pellaton.
+2<sup>nd</sup> place at [YHack '16](http://www.yhack.org/) and winner of the A+E Challenge. Built by Aaron Vontell, Ali Benlalah & Cooper Pellaton.
 
 ## Table of Contents
 - [Overview](#overview)
