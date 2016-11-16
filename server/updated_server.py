@@ -25,8 +25,9 @@ app.config.update(
     SESSION_TYPE='filesystem'
 )
 
-def flow():
-    return OAuth2WebServerFlow(
+@app.before_first_request
+def define_flow():
+    global FLOW; FLOW = OAuth2WebServerFlow(
         client_id=GOOGLE_CLIENT_ID,
         client_secret=os.environ['GOOG_SECRET'], 
         scope=YOUTUBE_SCOPE,
@@ -49,9 +50,9 @@ def save_credentials():
 @app.route('/oauth2callback')
 def oauth2callback():
   if 'code' not in request.args:
-    return redirect(flow().step1_get_authorize_url())
+    return redirect(FLOW.step1_get_authorize_url())
   else:
-    credentials = flow().step2_exchange(request.args.get('code'))
+    credentials = FLOW.step2_exchange(request.args.get('code'))
     session['credentials'] = credentials.to_json()
     return redirect(session['url_prior_to_oauth'])
 
