@@ -34,17 +34,17 @@ def flow():
 
 def service():
     return discovery.build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
-           OAuth2Credentials.from_json(session['credentials']).authorize(
-               httplib2.Http()))
+           credentials().authorize(httplib2.Http()))
 
+def credentials():
+    return OAuth2Credentials.from_json(session['credentials'])
+    
 @app.before_request
 def save_credentials():
-    if request.endpoint == 'oauth2callback':
-        return
-    if 'credentials' not in session or OAuth2Credentials.from_json(
-                                session['credentials']).access_token_expired:
-        session['url_prior_to_oauth'] = request.path
-        return redirect(url_for('oauth2callback'))
+    if request.endpoint != 'oauth2callback':
+        if 'credentials' not in session or credentials().access_token_expired:
+            session['url_prior_to_oauth'] = request.path
+            return redirect(url_for('oauth2callback'))
 
 @app.route('/oauth2callback')
 def oauth2callback():
