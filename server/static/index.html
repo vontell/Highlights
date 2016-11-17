@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+</head>
+
+<body>
+    <div id="main"></div>
+    <script id="videos-template" type="text/x-handlebars-template">
+        {{#each this}}
+        {{#with snippet}}
+        <p>{{title}}</p>
+        {{/with}}
+        {{/each}}
+    </script>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.min.js" integrity="sha256-1O3BtOwnPyyRzOszK6P+gqaRoXHV6JXj8HkjZmPYhCI=" crossorigin="anonymous"></script>
+    <script src="/static/main.js" /></script>
+</body>
+
+</html>
