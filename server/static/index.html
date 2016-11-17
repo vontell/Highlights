@@ -8,7 +8,12 @@
     <div id="main"></div>
     <script id="videos-template" type="text/x-handlebars-template">
         {{#each this}}
-        <p><a href="https://www.youtube.com/watch?v={{id.videoId}}"><img src="{{snippet.thumbnails.default.url}}"><br>{{snippet.title}}</a></p>
+            <p>
+                <a href="https://www.youtube.com/watch?v={{id.videoId}}">
+                    <img src="{{snippet.thumbnails.default.url}}"><br>
+                    {{snippet.title}}
+                </a>
+            </p>
         {{/each}}
     </script>
 
