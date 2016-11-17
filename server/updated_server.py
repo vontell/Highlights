@@ -7,6 +7,7 @@ from furl import furl
 from flask import Flask, Response, jsonify, redirect, request, url_for, session
 from oauth2client.client import OAuth2WebServerFlow, OAuth2Credentials
 from apiclient import discovery
+from flask_formatter import Formatter
 
 # testing9499924@gmail.com
 
@@ -19,22 +20,17 @@ YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube"
 
 logging.basicConfig(level=logging.DEBUG)
 
-class AutoJsonifyResponse(Response):
-    @classmethod
-    def force_type(cls, rv, environ=None):
-        if isinstance(rv, dict):
-            rv = jsonify(rv)
-        if isinstance(rv, list):
-            rv = jsonify(rv)
-        return super(AutoJsonifyResponse, cls).force_type(rv, environ)
-
-app = Flask(__name__)
-app.response_class = AutoJsonifyResponse
+app = Flask(__name__, static_url_path='/web')
+app.response_class = Formatter
 app.secret_key = 'this is not a secret key'
 app.config.update(
     SERVER_NAME=HOSTNAME,
     SESSION_TYPE='filesystem'
 )
+
+@Formatter.of(list, dict)
+def format_json(obj):
+    return jsonify(obj)
 
 @app.before_first_request
 def define_flow():
@@ -88,5 +84,3 @@ if __name__ == "__main__":
     logging.info("Started listening at {0} on http://{1}".format(
         datetime.now(), HOSTNAME))
     app.run(host='0.0.0.0', port=8080)
-    
-    
