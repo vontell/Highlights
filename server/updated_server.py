@@ -4,9 +4,10 @@ import os
 
 from datetime import datetime
 from furl import furl
-from flask import Flask, Response, jsonify, redirect, request, url_for, session
+from flask import Flask, Response, jsonify, redirect, request, url_for, session, send_from_directory
 from oauth2client.client import OAuth2WebServerFlow, OAuth2Credentials
 from apiclient import discovery
+from flask_formatter import Formatter
 
 # testing9499924@gmail.com
 
@@ -19,22 +20,17 @@ YOUTUBE_SCOPE = "https://www.googleapis.com/auth/youtube"
 
 logging.basicConfig(level=logging.DEBUG)
 
-class AutoJsonifyResponse(Response):
-    @classmethod
-    def force_type(cls, rv, environ=None):
-        if isinstance(rv, dict):
-            rv = jsonify(rv)
-        if isinstance(rv, list):
-            rv = jsonify(rv)
-        return super(AutoJsonifyResponse, cls).force_type(rv, environ)
-
-app = Flask(__name__)
-app.response_class = AutoJsonifyResponse
+app = Flask(__name__, static_url_path='/static')
+app.response_class = Formatter
 app.secret_key = 'this is not a secret key'
 app.config.update(
     SERVER_NAME=HOSTNAME,
     SESSION_TYPE='filesystem'
 )
+
+@Formatter.of(list, dict)
+def format_json(obj):
+    return jsonify(obj)
 
 @app.before_first_request
 def define_flow():
@@ -67,7 +63,7 @@ def oauth2callback():
     session['credentials'] = credentials.to_json()
     return redirect(session['url_prior_to_oauth'])
 
-@app.route('/api/subscriptions', methods=['GET'])
+@app.route('/api/subscriptions')
 def get_subscriptions():
     return service().subscriptions().list(
         part="id,snippet", mine=True, maxResults=50).execute()
@@ -77,16 +73,18 @@ def get_videos_for_channel(channel_id):
     return service().search().list(part="snippet", type="video",
             channelId=channel_id, order="date", maxResults=50).execute()
 
-@app.route('/api/subscribed_videos', methods=['GET'])
+@app.route('/api/subscribed_videos')
 def get_videos():
     channel_ids = [sub['snippet']['resourceId']['channelId'] 
                                     for sub in get_subscriptions()['items']]
     search_results = map(get_videos_for_channel, channel_ids)
     return sum([res['items'] for res in search_results], [])
 
+@app.route("/")
+def index():
+     return redirect(url_for('static', filename='index.html'))
+
 if __name__ == "__main__":
     logging.info("Started listening at {0} on http://{1}".format(
         datetime.now(), HOSTNAME))
     app.run(host='0.0.0.0', port=8080)
-    
-    
