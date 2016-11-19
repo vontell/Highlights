@@ -7,11 +7,12 @@ let update = function(selector) {
     };
 };
 
+let template = function(selector) {
+    return Handlebars.compile($(selector).html());
+};
+
 $(function(){
-    let template = Handlebars.compile($("#videos-template").html());
-    
-    console.log(template);
-    
-    $.ajax({url:"/api/subscribed_videos"}).then(template).then(update("#main"));
-    
+    $.ajax({url:"/api/subscribed_videos"})
+        .then(template("#videos-template"))
+        .then(update("#main"));
 });
