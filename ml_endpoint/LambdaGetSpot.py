@@ -1,8 +1,4 @@
-from __future__ import print_function
-
 import boto3
-import json
-import datetime
 from spot import Spot
 
 def respond(err, res=None):
@@ -19,14 +15,10 @@ def lambda_handler(event, context):
     videoId = str(event["videoId"])
     response = dynamo.get_item(Key={'videoId': videoId})
     if ('Item' not in response):
-        
-        ## replace this with call to python script
         spot = {
             "videoId": videoId,
             "data": Spot(videoId).toJson
         }
-        ## end replace
-        
         dynamo.put_item(Item=spot)
     else:
         spot = response['Item']
