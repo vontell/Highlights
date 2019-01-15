@@ -2,6 +2,8 @@
 
 2<sup>nd</sup> place at [YHack '16](http://www.yhack.org/) and winner of the A+E Challenge. Built by Aaron Vontell, Ali Benlalah & Cooper Pellaton.
 
+<a href="https://www.buymeacoffee.com/SYwZPjK4F" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/black_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+
 ## Table of Contents
 - [Overview](#overview)
 - [License](#license)
@@ -32,7 +34,7 @@ The homefeed view:
 The loading screen:
 ![](media/device/6P_loading.png)
 
-The view of the player:
+The view of the player: 
 ![](media/device/6P_playing.png)
 
 ![](media/device/6P_playing_2.png)
